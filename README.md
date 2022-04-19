@@ -58,4 +58,4 @@ List of vendors providing PhotoSwipe libraries.
     - Only PhotoSwipe, PhotoSwipeDeepZoomPlugin, and PhotoSwipeDynamicCaption are available from this source.
     - [PhotoSwipeVideoPlugin is not yet available](https://github.com/dimsemenov/photoswipe-video-plugin/issues/1#issuecomment-1102087166).
 
-- 'Local'
+- 'local'
