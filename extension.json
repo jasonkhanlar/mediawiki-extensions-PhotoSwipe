@@ -1,0 +1,154 @@
+{
+	"name": "PhotoSwipe",
+	"version": "1.0.0",
+	"author": [
+		"Jason Khanlar"
+	],
+	"descriptionmsg": "photoswipe-desc",
+	"license-name": "GPL-3.0-or-later",
+	"requires": {
+		"MediaWiki": ">= 1.37.2"
+	},
+	"type": "global",
+	"url": "https://mediawiki.org/wiki/Extension:PhotoSwipe",
+	"AutoloadClasses": {
+		"PhotoSwipe": "includes/PhotoSwipe.php"
+	},
+	"ConfigRegistry": {
+		"PhotoSwipe": "GlobalVarConfig::newInstance"
+	},
+	"Hooks": {
+		"ImageBeforeProduceHTML": "PhotoSwipe::MakeImageLink",
+		"BeforePageDisplay": "PhotoSwipe::AddResources",
+		"ParserFirstCallInit": "PhotoSwipe::AddHooks"
+	},
+	"MessagesDirs": {
+		"PhotoSwipe": [
+			"i18n"
+		]
+	},
+	"ResourceFileModulePaths": {
+		"localBasePath": "modules",
+		"remoteExtPath": "PhotoSwipe/modules"
+	},
+	"ResourceModules": {
+		"ext.photoSwipe": {
+			"localBasePath": "modules/ext.photoSwipe",
+			"remoteExtPath": "PhotoSwipe/modules/ext.photoSwipe",
+			"scripts": "ext.photoSwipe.js",
+			"messages": [
+				"myextension-foo-label"
+			],
+			"dependencies": [
+				"jquery.cookie",
+				"mediawiki.util"
+			]
+		},
+		"3rd.photoswipe": {
+			"scripts": [
+				"photoswipe/photoswipe.esm.min.js",
+				"photoswipe/photoswipe-lightbox.esm.min.js"
+			],
+			"styles": [
+				"photoswipe/photoswipe.css"
+			]
+		},
+		"3rd.photoswipe-deep-zoom-plugin": {
+			"scripts": [
+				"photoswipe-deep-zoom-plugin/photoswipe-deep-zoom-plugin.esm.min.js"
+			]
+		},
+		"3rd.photoswipe-dynamic-caption-plugin": {
+			"scripts": [
+				"photoswipe-dynamic-caption-plugin/photoswipe-dynamic-caption-plugin.esm.js"
+			],
+			"styles": [
+				"photoswipe-dynamic-caption-plugin/photoswipe-dynamic-caption-plugin.css"
+			]
+		},
+		"3rd.photoswipe-video-plugin": {
+			"scripts": [
+				"photoswipe-video-plugin/photoswipe-video-plugin.esm.min.js"
+			]
+		}
+	},
+	"config": {
+		"PhotoSwipeLibrary": {
+			"value": "MyVal",
+			"description": "Enables the foo functionality"
+		},
+		"PhotoSwipeConfig": {
+			"value": {
+				"method": "recommended",
+				"options": {
+					"gallery": "#my-gallery",
+					"children": "a",
+					"pswpModule": "() => import('photoswipe/dist/photoswipe.esm.js')"
+				},
+				"other_beginning": [],
+				"other_eventables": [
+					"lightbox.on('firstUpdate', () => {lightbox.pswp.options.easing = backEasing.out;});",
+					"lightbox.on('firstUpdate', () => {lightbox.pswp.options.easing = backEasing.out;});",
+					"lightbox.on('initialZoomInEnd', () => {lightbox.pswp.options.easing = backEasing.inOut;});",
+					"lightbox.on('close', () => {lightbox.pswp.options.easing = backEasing.in;});"
+				],
+				"other_end": [],
+				"plugins": {
+					"DeepZoomPlugin": {
+						"options": {
+							"tileSize": 256
+						}
+					},
+					"DynamicCaption": {
+						"options": {
+							"type": "auto"
+						}
+					},
+					"VideoPlugin": {
+						"options": {
+							"tileSize": 256
+						}
+					}
+				},
+				"vendor": "local",
+				"version": "latest"
+			},
+			"description": "Source to use for loading the library\n\nAllowed values:\n* See config var 'PhotoSwipeVendorList'"
+		},
+		"PhotoSwipeVendorList": {
+			"description": "List of vendors providing PhotoSwipe libraries. You should not modify this variable.",
+			"public": true,
+			"value": {
+				"cdnjs": {
+					"v5.2.2": {
+						"PhotoSwipe": "https://cdnjs.cloudflare.com/ajax/libs/photoswipe/5.2.2/"
+					}
+				},
+				"jsdelivr": {
+					"latest": {
+						"PhotoSwipe": "https://cdn.jsdelivr.net/gh/dimsemenov/PhotoSwipe@master/dist/",
+						"PhotoSwipeDeepZoomPlugin": "https://cdn.jsdelivr.net/gh/dimsemenov/photoswipe-deep-zoom-plugin@main/",
+						"PhotoSwipeDynamicCaption": "https://cdn.jsdelivr.net/gh/dimsemenov/photoswipe-dynamic-caption-plugin@main/",
+						"PhotoSwipeVideoPlugin": "https://cdn.jsdelivr.net/gh/dimsemenov/photoswipe-video-plugin@main/dist/"
+					}
+				},
+				"local": {
+					"latest": {
+						"PhotoSwipe": "/w/extensions/PhotoSwipe/modules/photoswipe/",
+						"PhotoSwipeDeepZoomPlugin": "/w/extensions/PhotoSwipe/modules/photoswipe-deep-zoom-plugin/",
+						"PhotoSwipeDynamicCaption": "/w/extensions/PhotoSwipe/modules//photoswipe-dynamic-caption-plugin/",
+						"PhotoSwipeVideoPlugin": "/w/extensions/PhotoSwipe/modules/photoswipe-video-plugin/"
+					}
+				},
+				"unpkg": {
+					"latest": {
+						"PhotoSwipe": "https://unpkg.com/photoswipe@latest/dist/",
+						"PhotoSwipeDeepZoomPlugin": "https://unpkg.com/photoswipe-deep-zoom-plugin@latest/",
+						"PhotoSwipeDynamicCaption": "https://unpkg.com/photoswipe-dynamic-caption-plugin@latest/"
+					}
+				}
+			}
+		}
+	},
+	"manifest_version": 2
+}
