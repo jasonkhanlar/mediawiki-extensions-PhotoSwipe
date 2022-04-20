@@ -1,5 +1,5 @@
 {
-	"name": "photoswipe",
+	"name": "mediawiki-extensions-photoswipe",
 	"version": "1.0.0",
 	"author": "Jason Khanlar",
 	"description": "",
@@ -20,5 +20,8 @@
 	"scripts": {
 		"build-lib": ". ./bin/build.sh",
 		"test": "grunt test"
+	},
+	"dependencies": {
+		"photoswipe": "^5.2.4"
 	}
 }
