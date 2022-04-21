@@ -22,6 +22,7 @@
 		"test": "grunt test"
 	},
 	"dependencies": {
+		"grunt-exec": "^3.0.0",
 		"photoswipe": "^5.2.4",
 		"photoswipe-deep-zoom-plugin": "^1.1.2",
 		"photoswipe-dynamic-caption-plugin": "^1.1.1"

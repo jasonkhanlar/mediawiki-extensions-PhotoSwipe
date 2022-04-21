@@ -132,15 +132,23 @@ class PhotoSwipe {
 	}
 
 	public static function AddResources (&$out, $skin) {
+		$out->addModules( 'js.photoswipe' );
+		$out->addModules( 'js.photoswipe-lightbox' );
+		$out->addModules( 'js.photoswipe-deep-zoom-plugin' );
+		$out->addModules( 'js.photoswipe-dynamic-caption-plugin' );
+		$out->addModules( 'js.photoswipe-video-plugin' );
+		$out->addModules( 'ext.photoSwipe' );
+/*
 		$config = self::getConfigValue( 'PhotoSwipeConfig' );
 		$paths = self::getPaths( $config );
 		//$out->addModules( 'ext.photoSwipe' );
 		//$out->addScriptFile( $paths[ 'PhotoSwipe' ] . 'photoswipe.esm.min.js' );
 		//$out->addScriptFile( $paths[ 'PhotoSwipe' ] . 'photoswipe-lightbox.esm.min.js' );
-		self::useWay( $out, $skin, $config ); 
+		self::useWay( $out, $skin, $config );
 		$out->addScript( '<script src="' . $paths[ 'PhotoSwipe' ] . 'photoswipe.esm.min.js' . '" type="module">' );
 		$out->addScript( '<script src="' . $paths[ 'PhotoSwipe' ] . 'photoswipe-lightbox.esm.min.js' . '" type="module">' );
 		$out->addStyle( $paths[ 'PhotoSwipe' ] . 'photoswipe.css' );
+        */
 	}
 
 	/**

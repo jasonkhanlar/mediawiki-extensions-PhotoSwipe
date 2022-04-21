@@ -35,40 +35,51 @@
 		"ext.photoSwipe": {
 			"localBasePath": "modules/ext.photoSwipe",
 			"remoteExtPath": "PhotoSwipe/modules/ext.photoSwipe",
-			"scripts": "ext.photoSwipe.js",
 			"messages": [
 				"myextension-foo-label"
 			],
+			"packageFiles": [
+				"ext.photoSwipe.js"
+			],
 			"dependencies": [
+				"js.photoswipe",
+				"js.photoswipe-lightbox",
+				"js.photoswipe-deep-zoom-plugin",
+				"js.photoswipe-dynamic-caption-plugin",
+				"js.photoswipe-video-plugin",
 				"jquery.cookie",
 				"mediawiki.util"
 			]
 		},
-		"3rd.photoswipe": {
-			"scripts": [
-				"photoswipe/photoswipe.esm.min.js",
-				"photoswipe/photoswipe-lightbox.esm.min.js"
+		"js.photoswipe": {
+			"packageFiles": [
+				"/ext.photoSwipe/lib/photoswipe.cjs.js"
 			],
 			"styles": [
-				"photoswipe/photoswipe.css"
+				"/ext.photoSwipe/lib/photoswipe.css"
 			]
 		},
-		"3rd.photoswipe-deep-zoom-plugin": {
-			"scripts": [
-				"photoswipe-deep-zoom-plugin/photoswipe-deep-zoom-plugin.esm.min.js"
+		"js.photoswipe-lightbox": {
+			"packageFiles": [
+				"/ext.photoSwipe/lib/photoswipe-lightbox.cjs.js"
 			]
 		},
-		"3rd.photoswipe-dynamic-caption-plugin": {
-			"scripts": [
-				"photoswipe-dynamic-caption-plugin/photoswipe-dynamic-caption-plugin.esm.js"
+		"js.photoswipe-deep-zoom-plugin": {
+			"packageFiles": [
+				"/ext.photoSwipe/lib/photoswipe-deep-zoom-plugin.cjs.js"
+			]
+		},
+		"js.photoswipe-dynamic-caption-plugin": {
+			"packageFiles": [
+				"/ext.photoSwipe/lib/photoswipe-dynamic-caption-plugin.cjs.js"
 			],
 			"styles": [
-				"photoswipe-dynamic-caption-plugin/photoswipe-dynamic-caption-plugin.css"
+				"/ext.photoSwipe/lib/photoswipe-dynamic-caption-plugin.css"
 			]
 		},
-		"3rd.photoswipe-video-plugin": {
-			"scripts": [
-				"photoswipe-video-plugin/photoswipe-video-plugin.esm.min.js"
+		"js.photoswipe-video-plugin": {
+			"packageFiles": [
+				"/ext.photoSwipe/lib/photoswipe-video-plugin.cjs.js"
 			]
 		}
 	},

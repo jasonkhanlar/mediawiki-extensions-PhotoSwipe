@@ -1,3 +1,9 @@
+console.log('loading ext.photoSwipe.js');
+var PhotoSwipeLightBox = require('photoswipe-lightbox');
+//var PhotoSwipeLightBox = require('./lib/photoswipe-lightbox.cjs.js');
+//var PhotoSwipeLightBox = require('https://moasspedia.org/w/extensions/PhotoSwipe/modules/ext.photoSwipe/lib/photoswipe-lightbox.cjs.js');
+//console.log(PhotoSwipeLightBox);
+/*
 $(document).ready(function() {
   if ($('head > script[type="module"]').length === 0) {
     $('head').append(`<link rel='stylesheet' href='https://cdn.jsdelivr.net/gh/dimsemenov/PhotoSwipe@master/dist/photoswipe.css'/>`);
@@ -41,3 +47,4 @@ $(document).ready(function() {
     $('head').append(html);
   }
 });
+*/
