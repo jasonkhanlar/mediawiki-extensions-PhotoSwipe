@@ -6,8 +6,9 @@
 	],
 	"descriptionmsg": "photoswipe-desc",
 	"license-name": "GPL-3.0-or-later",
+	"load_composer_autoloader": true,
 	"requires": {
-		"MediaWiki": ">= 1.37.2"
+		"MediaWiki": ">= 1.37.1"
 	},
 	"type": "global",
 	"url": "https://mediawiki.org/wiki/Extension:PhotoSwipe",
@@ -18,9 +19,7 @@
 		"PhotoSwipe": "GlobalVarConfig::newInstance"
 	},
 	"Hooks": {
-		"ImageBeforeProduceHTML": "PhotoSwipe::MakeImageLink",
-		"BeforePageDisplay": "PhotoSwipe::AddResources",
-		"ParserFirstCallInit": "PhotoSwipe::AddHooks"
+		"ParserFirstCallInit": "PhotoSwipe::onParserFirstCallInit"
 	},
 	"MessagesDirs": {
 		"PhotoSwipe": [
@@ -65,11 +64,17 @@
 			]
 		},
 		"js.photoswipe-deep-zoom-plugin": {
+			"dependencies": [
+				"js.photoswipe-lightbox"
+			],
 			"packageFiles": [
 				"/ext.photoSwipe/lib/photoswipe-deep-zoom-plugin.cjs.js"
 			]
 		},
 		"js.photoswipe-dynamic-caption-plugin": {
+			"dependencies": [
+				"js.photoswipe-lightbox"
+			],
 			"packageFiles": [
 				"/ext.photoSwipe/lib/photoswipe-dynamic-caption-plugin.cjs.js"
 			],
@@ -78,10 +83,21 @@
 			]
 		},
 		"js.photoswipe-video-plugin": {
+			"dependencies": [
+				"js.photoswipe-lightbox"
+			],
 			"packageFiles": [
 				"/ext.photoSwipe/lib/photoswipe-video-plugin.cjs.js"
 			]
 		}
+	},
+	"QUnitTestModule": {
+		"localBasePath": "tests/qunit",
+		"remoteExtPath": "PhotoSwipe/tests/qunit",
+		"dependencies": [
+		],
+		"packageFiles": [
+		]
 	},
 	"config": {
 		"PhotoSwipeLibrary": {
@@ -90,75 +106,52 @@
 		},
 		"PhotoSwipeConfig": {
 			"value": {
-				"method": "recommended",
+				"mode": "recommended",
 				"options": {
-					"gallery": "#my-gallery",
-					"children": "a",
-					"pswpModule": "() => import('photoswipe/dist/photoswipe.esm.js')"
+					"gallery": "table.gallery",
+					"children": "a.img",
+					"thumbSelector": "a.img",
+					"pswpModule": "() => require( 'js.photoswipe' )",
+					"allowPanToNext": false,
+					"allowMouseDrag": true,
+					"wheelToZoom": true,
+					"zoom": false
 				},
-				"other_beginning": [],
-				"other_eventables": [
-					"lightbox.on('firstUpdate', () => {lightbox.pswp.options.easing = backEasing.out;});",
-					"lightbox.on('firstUpdate', () => {lightbox.pswp.options.easing = backEasing.out;});",
-					"lightbox.on('initialZoomInEnd', () => {lightbox.pswp.options.easing = backEasing.inOut;});",
-					"lightbox.on('close', () => {lightbox.pswp.options.easing = backEasing.in;});"
+				"addBeginning": [
+					"document.querySelectorAll( 'table.gallery img' ).forEach( ( e, i ) => { if ( e.parentElement.tagName !== 'A' ) { document.querySelectorAll( 'img' )[ i ].outerHTML = `<a class='img' href='${e.src}'; data-my-size='${e.naturalWidth}x${e.naturalHeight}'>${e.outerHTML}</a>`; } } );"
 				],
-				"other_end": [],
+				"addEventables": [
+					"const backEasing = { in: 'cubic-bezier(0.6, -0.28, 0.7, 1)', out: 'cubic-bezier(0.3, 0, 0.32, 1.275)', inOut: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)' }",
+					"lightbox.on( 'firstUpdate', () => { lightbox.pswp.options.easing = backEasing.out; } );",
+					"lightbox.on( 'initialZoomInEnd', () => { lightbox.pswp.options.easing = backEasing.inOut; } );",
+					"lightbox.on( 'close', () => { lightbox.pswp.options.easing = backEasing.in; } );",
+					"lightbox.addFilter( 'domItemData', ( itemData, element, linkEl ) => { if ( linkEl ) { const sizeAttr = linkEl.dataset.mySize; itemData.src = linkEl.href; itemData.w = Number( sizeAttr.split( 'x' )[ 0 ] ); itemData.h = Number( sizeAttr.split( 'x' )[ 1 ] ); itemData.msrc = linkEl.dataset.thumbSrc; itemData.thumbCropped = true; } return itemData; } );"
+				],
+				"addEnd": [],
 				"plugins": {
 					"DeepZoomPlugin": {
+						"enabled": true,
 						"options": {
 							"tileSize": 256
 						}
 					},
 					"DynamicCaption": {
+						"enabled": true,
 						"options": {
+							"captionContent": ".pswp-caption-content",
+							"horizontalEdgeThreshold": 20,
+							"mobileCaptionOverlapRatio": 0.3,
+							"mobileLayoutBreakpoint": 600,
 							"type": "auto"
 						}
 					},
 					"VideoPlugin": {
-						"options": {
-							"tileSize": 256
-						}
-					}
-				},
-				"vendor": "local",
-				"version": "latest"
-			},
-			"description": "Source to use for loading the library\n\nAllowed values:\n* See config var 'PhotoSwipeVendorList'"
-		},
-		"PhotoSwipeVendorList": {
-			"description": "List of vendors providing PhotoSwipe libraries. You should not modify this variable.",
-			"public": true,
-			"value": {
-				"cdnjs": {
-					"v5.2.2": {
-						"PhotoSwipe": "https://cdnjs.cloudflare.com/ajax/libs/photoswipe/5.2.2/"
-					}
-				},
-				"jsdelivr": {
-					"latest": {
-						"PhotoSwipe": "https://cdn.jsdelivr.net/gh/dimsemenov/PhotoSwipe@master/dist/",
-						"PhotoSwipeDeepZoomPlugin": "https://cdn.jsdelivr.net/gh/dimsemenov/photoswipe-deep-zoom-plugin@main/",
-						"PhotoSwipeDynamicCaption": "https://cdn.jsdelivr.net/gh/dimsemenov/photoswipe-dynamic-caption-plugin@main/",
-						"PhotoSwipeVideoPlugin": "https://cdn.jsdelivr.net/gh/dimsemenov/photoswipe-video-plugin@main/dist/"
-					}
-				},
-				"local": {
-					"latest": {
-						"PhotoSwipe": "/w/extensions/PhotoSwipe/modules/photoswipe/",
-						"PhotoSwipeDeepZoomPlugin": "/w/extensions/PhotoSwipe/modules/photoswipe-deep-zoom-plugin/",
-						"PhotoSwipeDynamicCaption": "/w/extensions/PhotoSwipe/modules//photoswipe-dynamic-caption-plugin/",
-						"PhotoSwipeVideoPlugin": "/w/extensions/PhotoSwipe/modules/photoswipe-video-plugin/"
-					}
-				},
-				"unpkg": {
-					"latest": {
-						"PhotoSwipe": "https://unpkg.com/photoswipe@latest/dist/",
-						"PhotoSwipeDeepZoomPlugin": "https://unpkg.com/photoswipe-deep-zoom-plugin@latest/",
-						"PhotoSwipeDynamicCaption": "https://unpkg.com/photoswipe-dynamic-caption-plugin@latest/"
+						"enabled": true,
+						"options": {}
 					}
 				}
-			}
+			},
+			"description": "Configuration for loading the PhotoSwipe JS library and plugins"
 		}
 	},
 	"manifest_version": 2
