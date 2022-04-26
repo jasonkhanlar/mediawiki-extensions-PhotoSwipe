@@ -10,171 +10,27 @@
 if ( !defined( 'MEDIAWIKI' ) )
 	die( 'This is a MediaWiki extension, and must be run from within MediaWiki.' );
 
+//namespace PhotoSwipe;
+
+use Ahc\Json\Comment;
 use MediaWiki\MediaWikiServices;
+use Respect\Validation\Validator as v;
+use Seld\JsonLint\JsonParser;
 
 class PhotoSwipe {
 	/**
-	 * Uses the Resource Loader to add the javacript and css files.
-	 * 
-	 * @param Page $out
-	 * @param Skin $skin
-	 * @return boolean
-	 */
-	public static function useWay (&$out, $skin, $config) {
-		$paths = self::getPaths( $config );
-
-		//if ($config[ 'method' ] === 'recommended') {
-		// https://photoswipe.com/getting-started/#initialization
-		// JSON cannot contain functions, recreate function
-		if (array_key_exists( 'pswpModule', $config[ 'options' ] )) {
-			$config[ 'options' ][ 'pswpModule' ] = "%pswpModule%";
-		}
-		$options = json_encode($config['options']);
-		if (strpos( $options, "\"pswpModule\":\"%pswpModule%\"" ) !== false) {
-			if ($config[ 'method' ] === 'withoutdynamicimport') {
-				$options = str_replace( "\"%pswpModule%\"", "PhotoSwipe", $options );
-			} else {
-				$options = str_replace( "\"%pswpModule%\"", "() => import('" . $paths[ 'PhotoSwipe' ] . "photoswipe.esm.min.js')", $options );
-			}
-		}
-
-		$script = "<script type='module'>\n";
-		if ($config[ 'method' ] !== 'withoutlightbox') {
-			// https://photoswipe.com/data-sources/#without-lightbox-module
-			$script .= "import PhotoSwipeLightbox from '${paths[ 'PhotoSwipe' ]}/photoswipe-lightbox.esm.min.js';\n";
-		}
-		if ($config[ 'method' ] === 'withoutdynamicimport') {
-			// https://photoswipe.com/getting-started/#without-dynamic-import
-			$script .= "import PhotoSwipe from '${paths[ 'PhotoSwipe' ]}/photoswipe.esm.min.js';\n";
-		}
-		if (in_array( 'DeepZoomPlugin', $config[ 'plugins' ] ) || array_key_exists( 'DeepZoomPlugin', $config[ 'plugins' ] )) {
-			// https://github.com/dimsemenov/photoswipe-deep-zoom-plugin
-			$script .= "import PhotoSwipeDeepZoom from '${paths[ 'PhotoSwipeDeepZoomPlugin' ]}/photoswipe-deep-zoom-plugin.esm.min.js';\n";
-		}
-		if (in_array( 'DynamicCaption', $config[ 'plugins' ] ) || array_key_exists( 'DynamicCaption', $config[ 'plugins' ] )) {
-			// https://github.com/dimsemenov/photoswipe-dynamic-caption-plugin
-			$script .= "import PhotoSwipeDynamicCaption from '${paths[ 'PhotoSwipeDynamicCaption' ]}/photoswipe-dynamic-caption-plugin.esm.js';\n";
-		}
-		if (in_array( 'VideoPlugin', $config[ 'plugins' ] ) || array_key_exists( 'VideoPlugin', $config[ 'plugins' ] )) {
-			// https://github.com/dimsemenov/photoswipe-video-plugin
-			$script .= "import PhotoSwipeVideoPlugin from '${paths[ 'PhotoSwipeVideoPlugin' ]}/photoswipe-video-plugin.esm.min.js';\n";
-		}
-
-		if (array_key_exists( 'other_beginning', $config )) {
-			if (gettype( $config[ 'other_beginning' ] ) === 'array') {
-				$config[ 'other_beginning' ] = implode( "\n", $config[ 'other_beginning' ] );
-			}
-			$script .= $config[ 'other_beginning' ] . "\n";
-		}
-
-		if ($config[ 'method' ] !== 'withoutlightbox') {
-			$script .= "const lightbox = new PhotoSwipeLightbox( $options );\n";
-		} else {
-			// https://photoswipe.com/data-sources/#without-lightbox-module
-			// Use $config[ 'other_eventables' ] or $config[ 'other_end' ]
-		}
-
-		// Eventables - Add custom defined JS
-		// https://photoswipe.com/opening-or-closing-transition/#transition-duration-and-easing
-		// https://photoswipe.com/opening-or-closing-transition/#hiding-elements-that-overlap-thumbnails
-		// https://photoswipe.com/adding-ui-elements/
-		if (array_key_exists( 'other_eventables', $config )) {
-			if (gettype( $config[ 'other_eventables' ] ) === 'array') {
-				$config[ 'other_eventables' ] = implode( "\n", $config[ 'other_eventables' ] );
-			}
-			$script .= $config[ 'other_eventables' ] . "\n";
-		}
-
-		if (in_array( 'DeepZoomPlugin', $config[ 'plugins' ] ) || array_key_exists( 'DeepZoomPlugin', $config[ 'plugins' ] )) {
-			if (gettype( $config[ 'plugins' ][ 'DeepZoomPlugin' ] ) == 'array' && gettype( $config[ 'plugins' ][ 'DeepZoomPlugin' ][ 'options' ] ) == 'array') {
-				$options = json_encode($config[ 'plugins' ][ 'DeepZoomPlugin' ][ 'options' ]);
-				$script .= "const deepZoomPlugin = new PhotoSwipeDeepZoom(lightbox, $options);\n";
-			} else {
-				$script .= "const deepZoomPlugin = new PhotoSwipeDeepZoom(lightbox, {});\n";
-			}
-		}
-
-		if (in_array( 'DynamicCaption', $config[ 'plugins' ] ) || array_key_exists( 'DynamicCaption', $config[ 'plugins' ] )) {
-			if (gettype( $config[ 'plugins' ][ 'DynamicCaption' ] ) == 'array' && gettype( $config[ 'plugins' ][ 'DynamicCaption' ][ 'options' ] ) == 'array') {
-				$options = json_encode($config[ 'plugins' ][ 'DynamicCaption' ][ 'options' ]);
-				$script .= "const captionPlugin = new PhotoSwipeDynamicCaption(lightbox, $options);\n";
-			} else {
-				$script .= "const captionPlugin = new PhotoSwipeDynamicCaption(lightbox, {});\n";
-			}
-		}
-
-		if (in_array( 'VideoPlugin', $config[ 'plugins' ] ) || array_key_exists( 'VideoPlugin', $config[ 'plugins' ] )) {
-			if (gettype( $config[ 'plugins' ][ 'VideoPlugin' ] ) == 'array' && gettype( $config[ 'plugins' ][ 'VideoPlugin' ][ 'options' ] ) == 'array') {
-				$options = json_encode($config[ 'plugins' ][ 'VideoPlugin' ][ 'options' ]);
-				$script .= "const videoPlugin = new PhotoSwipeVideoPlugin(lightbox, $options);\n";
-			} else {
-				$script .= "const videoPlugin = new PhotoSwipeVideoPlugin(lightbox, {});\n";
-			}
-		}
-
-		$script .= "lightbox.init();\n";
-
-		if (array_key_exists( 'other_end', $config )) {
-			if (gettype( $config[ 'other_end' ] ) === 'array') {
-				$config[ 'other_end' ] = implode( "\n", $config[ 'other_end' ] );
-			}
-			$script .= $config[ 'other_end' ] . "\n";
-		}
-
-		$script .= "</script>\n";
-
-		$out->addScript( $script );
-		$out->addStyle( $paths[ 'PhotoSwipe' ] . 'photoswipe.css' );
-		if (in_array( 'DynamicCaption', $config[ 'plugins' ] ) || array_key_exists( 'DynamicCaption', $config[ 'plugins' ] )) {
-			$out->addStyle( $paths[ 'PhotoSwipeDynamicCaption' ] . 'photoswipe-dynamic-caption-plugin.css' );
-		}
-		//}
-	}
-
-	public static function AddResources (&$out, $skin) {
-		$out->addModules( 'js.photoswipe' );
-		$out->addModules( 'js.photoswipe-lightbox' );
-		$out->addModules( 'js.photoswipe-deep-zoom-plugin' );
-		$out->addModules( 'js.photoswipe-dynamic-caption-plugin' );
-		$out->addModules( 'js.photoswipe-video-plugin' );
-		$out->addModules( 'ext.photoSwipe' );
-/*
-		$config = self::getConfigValue( 'PhotoSwipeConfig' );
-		$paths = self::getPaths( $config );
-		//$out->addModules( 'ext.photoSwipe' );
-		//$out->addScriptFile( $paths[ 'PhotoSwipe' ] . 'photoswipe.esm.min.js' );
-		//$out->addScriptFile( $paths[ 'PhotoSwipe' ] . 'photoswipe-lightbox.esm.min.js' );
-		self::useWay( $out, $skin, $config );
-		$out->addScript( '<script src="' . $paths[ 'PhotoSwipe' ] . 'photoswipe.esm.min.js' . '" type="module">' );
-		$out->addScript( '<script src="' . $paths[ 'PhotoSwipe' ] . 'photoswipe-lightbox.esm.min.js' . '" type="module">' );
-		$out->addStyle( $paths[ 'PhotoSwipe' ] . 'photoswipe.css' );
-        */
-	}
-
-	/**
-	 * Adds parser hooks.
-	 * 
-	 * @global HighlideGallery $hg
-	 * @param Parser $parser
-	 * @return boolean
-	 */
-	public static function AddHooks (&$parser) {
-	}
-
-	/**
-	* The WikiSEO Config object
-	*
-	* @var Config
+	* @var config The PhotoSwipe extension.json configuration
 	*/
-	private static $config;
+	private static $config = [];
 
 	/**
-	* Loads a config value for a given key from the main config
+	* Loads a config value for a given key from the main extension.json config
 	* Returns null if config key does not exist
+	* @link https://mediawiki.org/wiki/Manual:Configuration_for_developers
 	*
-	* @param string $key The config key
+	* @param string $key The name of the key
 	*
-	* @return mixed|null
+	* @return mixed|null The value of the key
 	*/
 	protected function getConfigValue( string $key ) {
 		if ( !self::$config ) {
@@ -191,14 +47,269 @@ class PhotoSwipe {
 		return $value;
 	}
 
-	protected function getPaths( $config ) {
-		// Warning: Currently no checks if vendor provides resources
-		$vendorList = self::getConfigValue( 'PhotoSwipeVendorList' );
-		$paths = array();
-		$paths[ 'PhotoSwipe' ] = $vendorList[ $config[ 'vendor' ] ][ $config[ 'version' ] ][ 'PhotoSwipe' ];
-		$paths[ 'PhotoSwipeDeepZoomPlugin' ] = $vendorList[ $config[ 'vendor' ] ][ $config[ 'version' ]][ 'PhotoSwipeDeepZoomPlugin' ];
-		$paths[ 'PhotoSwipeDynamicCaption' ] = $vendorList[ $config[ 'vendor' ] ][ $config[ 'version' ]][ 'PhotoSwipeDynamicCaption' ];
-		$paths[ 'PhotoSwipeVideoPlugin' ] = $vendorList[ $config[ 'vendor' ] ][ $config[ 'version' ]][ 'PhotoSwipeVideoPlugin' ];
-		return $paths;
+	/**
+	* Returns true or false depending on if plugin is enabled
+	*
+	* @param string &$resource The configuration resource (extension, attribute, or content)
+	* @param string &$key The name of the key
+	* @param mixed &$value The value of the key
+	* @return boolean
+	*/
+	protected function isValidConfig( string &$resource, string &$key, &$value ) {
+		/*
+		* MediaWiki evaluates objects in extension.json as associative arrays. Evaluate the same way for tag attributes and content
+		* See https://github.com/wikimedia/mediawiki/blob/master/includes/registration/ExtensionRegistry.php#L372
+		*/
+
+		$validKeys = array_map( 'strtolower', array(
+			'mode',
+			'options',
+			'addBeginning',
+			'addEventables',
+			'addEnd',
+			'plugins'
+		) );
+		if ( !v::in( $validKeys )->validate( $key ) ) {
+			// https://mediawiki.org/wiki/Manual:Messages_API#Using_messages_in_PHP
+			return wfMessage( 'photoswipe-invalid-config-key' )
+				->params( $resource, htmlspecialchars( json_encode( $key ) ) )
+				->parse();
+		}
+
+		unset( $validArrayValues, $validValueType );
+		if ( $key === 'mode' ) {
+			$validArrayValues = array_map( 'strtolower', array(
+				'recommended', // https://photoswipe.com/getting-started/#initialization
+				'withoutDynamicImport', // https://photoswipe.com/getting-started/#without-dynamic-import
+				'withoutLightbox' // https://photoswipe.com/data-sources/#without-lightbox-module
+			) );
+		} else if ( $key === 'options' ) {
+			$validValueType = 'isArray';
+		} else if ( $key === 'addbeginning' ) {
+			$validValueType = 'isStringorArrayofStrings';
+		} else if ( $key === 'addeventables' ) {
+			$validValueType = 'isStringorArrayofStrings';
+		} else if ( $key === 'addend' ) {
+			$validValueType = 'isStringorArrayofStrings';
+		} else if ( $key === 'plugins' ) {
+			$validValueType = 'isArray';
+		}
+
+		// Tag arguments are always strings. Deserialize JSON.
+		// https://respect-validation.readthedocs.io/en/latest/rules/Json/
+		if ( v::json()->validate( $value ) ) {
+			$value = json_decode( $value, /* $assoc = */ true );
+		}
+
+		$valid = true;
+		if ( $validArrayValues ) {
+			// https://respect-validation.readthedocs.io/en/latest/rules/StringType/
+			if ( !v::stringType()->validate( $value ) ) {
+				$valid = false;
+			}
+
+			// https://respect-validation.readthedocs.io/en/latest/rules/In/
+			if ( !v::in( $validArrayValues )->validate( strtolower( $value ) ) ) {
+				$valid = false;
+			}
+		} else if ( $validValueType === 'isArray' ) {
+			// https://respect-validation.readthedocs.io/en/latest/rules/ArrayType/
+			if ( !v::arrayType()->validate( $value, ) ) {
+				$valid = false;
+			}
+		} else if ( $validValueType === 'isString' ) {
+			if ( !v::stringType()->validate( $value ) ) {
+				$valid = false;
+			}
+		} else if ( $validValueType === 'isStringorArrayofStrings' ) {
+			// https://respect-validation.readthedocs.io/en/latest/rules/AnyOf/
+			if ( !v::anyOf( v::arrayType(), v::stringType() )->validate( $value ) ) {
+				$valid = false;
+			}
+
+			if ( v::arrayType()->validate( $value, ) ) {
+				foreach ( json_decode( $value, /* $assoc = */ true ) as $k => $v ) {
+					if ( !v::stringType()->validate( $v ) ) {
+						$valid = false;
+					}
+				}
+			}
+		}
+
+		if ( !$valid ) {
+			return wfMessage( 'photoswipe-invalid-config-keyvalue' )
+				->params( $resource, htmlspecialchars( json_encode( $key ) ), htmlspecialchars( json_encode( $value ) ) )
+				->text();
+		}
+		return true;
+	}
+
+	/**
+	* Register the <photoswipe> tag with the Parser.
+	* @link https://mediawiki.org/wiki/Manual:Tag_extensions
+	* @link https://mediawiki.org/wiki/Manual:Hooks/ParserFirstCallInit
+	* @link https://doc.wikimedia.org/mediawiki-core/master/php/interfaceMediaWiki_1_1Hook_1_1ParserFirstCallInitHook.html
+	*
+	* @param Parser &$parser
+	*/
+	public static function onParserFirstCallInit( Parser &$parser ) {
+		$parser->setHook( 'photoswipe', [ self::class, 'renderTagPhotoSwipe' ] );
+	}
+
+	/**
+	* Callback for onParserFirstCallInit
+	*
+	* @param string|null $input User-supplied input (null for self-closing tag)
+	* @param array &$args Tag arguments, if any
+	* @param Parser &$parser
+	* @param PPFrame &$frame
+	* @return string HTML
+	*/
+	public static function renderTagPhotoSwipe( &$input, array &$args, Parser &$parser, PPFrame &$frame ) {
+		$extension = self::getConfigValue( 'PhotoSwipeConfig' );
+		$errors = array();
+
+		$jsConfigVars = array( 'wgPhotoSwipeConfig' => array() );
+
+		// Strip single and multi-line comments, strip trailing commas, enable multiline strings
+		if ( $input ) { $input = ( new Comment )->strip( $input ); }
+
+		foreach ( array( 'validate', 'parse' ) as $process ) {
+			foreach ( array( 'extension', 'attribute', 'content' ) as $resource ) {
+				if ( $resource === 'extension' ) {
+					$configsrc = 'extension';
+				} else if ( $resource === 'attribute' ) {
+					$configsrc = 'args';
+				} else if ( $resource === 'content' ) {
+					$configsrc = 'input';
+				}
+
+				// 'content' resource initializes as string. Deserialize if valid JSON.
+				if ( v::stringType()->validate( $$configsrc ) ) {
+					$$configsrc = str_replace( "\n", "", $$configsrc );
+					$$configsrc = str_replace( "\t", "", $$configsrc );
+					if ( v::json()->validate( $$configsrc ) ) {
+						$$configsrc = json_decode( $$configsrc, /* $assoc = */ true );
+					}
+				}
+
+				// First check for errors (extension config and page config)
+				if ( $process === 'validate' ) {
+					// Check if 'content' resource JSON deserialization failed.
+					if ( v::allOf( v::stringType(), v::not( v::json() ) )->validate( $$configsrc ) ) {
+						$jsonparser = new JsonParser();
+						$jsonerror = $jsonparser->lint( $$configsrc )->getMessage();
+						$jsonerror = trim( str_replace( 'Parse error on line 1:', '', $jsonerror ) );
+						$jsonerror = '<blockquote><code>' . str_replace( "\n", '<br>', $jsonerror ) . '</code></blockquote>';
+
+						array_push( $errors, '* ' . wfMessage( 'photoswipe-invalid-config-json' )->params( $resource, $jsonerror )->parse() );
+					}
+
+					else if ( v::arrayType()->validate( $$configsrc ) && count( $$configsrc ) > 0 ) {
+						if ( v::arrayType()->validate( $$configsrc ) ) {
+							foreach ( $$configsrc as $key => &$value ) {
+								if ( ( $isValid = self::isValidConfig( $resource, strtolower( $key ), $value ) ) !== true ) {
+									array_push( $errors, '* ' . $isValid );
+								}
+							}
+						}
+					}
+				} else if ( $process === 'parse' ) {
+					if ( v::arrayType()->validate( $$configsrc ) && count( $$configsrc ) > 0 ) {
+						//$ccKeyNames = array_map( 'strtolower', array(
+						$ccKeyNames = array(
+							'mode',
+							'options',
+							'addBeginning',
+							'addEventables',
+							'addEnd',
+							'plugins'
+						);
+						foreach ( $$configsrc as $key => &$value ) {
+							// Force camelCase
+							$ccKeyName = $ccKeyNames[ array_search( strtolower( $key ), array_map( 'strtolower', $ccKeyNames ) ) ];
+							/*
+							$GLOBALS[ 'wgPhotoSwipeConfig' ][ $ccKeyName ] = $value;
+							if ( v::in( array_map( 'strtolower', $ccKeyNames ) )->validate( strtolower( $key ) ) && v::not( v::in( $ccKeyNames ) )->validate( $key ) ) {
+								if ( array_key_exists( $key, $GLOBALS[ 'wgPhotoSwipeConfig' ] ) ) {
+									unset( $GLOBALS[ 'wgPhotoSwipeConfig' ][ $key ] );
+								}
+							}
+							*/
+							// Instead use a nonglobal variable for combining configurations (extension, tag arguments, tag content)
+							$jsConfigVars[ 'wgPhotoSwipeConfig' ][ $ccKeyName ] = $value;
+						}
+					}
+				}
+			}
+
+			// Return all errors before processing
+			if ( $process === 'validate' ) {
+				if ( count( $errors ) > 0 ) {
+					return wfMessage( 'photoswipe-invalid-config-all' )
+						->plaintextParams( implode( "\n", $errors ) )
+						->text();
+				}
+			}
+		}
+
+		$out = $parser->getOutput();
+		foreach ( $jsConfigVars[ 'wgPhotoSwipeConfig' ] as $key => &$value ) {
+			if ( strtolower( $key ) === 'mode' ) {
+				if ( $value !== 'withoutlightbox' ) {
+					// https://photoswipe.com/data-sources/#without-lightbox-module
+					$out->addModules( 'js.photoswipe-lightbox' );
+				}
+				// This doesn't work well server-side, handle client-side
+				//if ( $value === 'withoutdynamicimport' ) {
+				$out->addModules( 'js.photoswipe' );
+				//}
+			//} else if ( strtolower( $key ) === 'options' ) {
+			//} else if ( strtolower( $key ) === 'addbeginning' ) {
+			//} else if ( strtolower( $key ) === 'addeventables' ) {
+			//} else if ( strtolower( $key ) === 'addend' ) {
+			} else if ( strtolower( $key ) === 'plugins' ) {
+				foreach ( $value as $k => &$v ) {
+					if ( v::stringType()->validate( $v ) ) {
+						if ( strtolower( $v ) === strtolower( 'DeepZoomPlugin' ) ) {
+							$out->addModules( 'js.photoswipe-deep-zoom-plugin' );
+							// dependency, ensure this module is loaded even if misconfigured
+							$out->addModules( 'js.photoswipe-lightbox' );
+						} else if ( strtolower( $v ) === strtolower( 'DynamicCaption' ) ) {
+							$out->addModules( 'js.photoswipe-dynamic-caption-plugin' );
+							// dependency, ensure this module is loaded even if misconfigured
+							$out->addModules( 'js.photoswipe-lightbox' );
+						} else if ( strtolower( $v ) === strtolower( 'VideoPlugin' ) ) {
+							$out->addModules( 'js.photoswipe-video-plugin' );
+							// dependency, ensure this module is loaded even if misconfigured
+							$out->addModules( 'js.photoswipe-lightbox' );
+						}
+					} else if ( v::arrayType()->validate( $v ) ) {
+						// Enable by default if 'enabled' key isn't specified
+						if ( v::anyOf( v::key( 'enabled', v::equals( true ) ), v::not( v::key( 'enabled' ) ) )->validate( $v ) ) {
+							if ( strtolower( $k ) === strtolower( 'DeepZoomPlugin' ) ) {
+								$out->addModules( 'js.photoswipe-deep-zoom-plugin' );
+								// dependency, ensure this module is loaded even if misconfigured
+								$out->addModules( 'js.photoswipe-lightbox' );
+							} else if ( strtolower( $k ) === strtolower( 'DynamicCaption' ) ) {
+								$out->addModules( 'js.photoswipe-dynamic-caption-plugin' );
+								// dependency, ensure this module is loaded even if misconfigured
+								$out->addModules( 'js.photoswipe-lightbox' );
+							} else if ( strtolower( $k ) === strtolower( 'VideoPlugin' ) ) {
+								$out->addModules( 'js.photoswipe-video-plugin' );
+								// dependency, ensure this module is loaded even if misconfigured
+								$out->addModules( 'js.photoswipe-lightbox' );
+							}
+						}
+					}
+				}
+			}
+		}
+
+		global $wgOut; // OutputPage
+		$jsConfigVars[ 'wgPhotoSwipeConfig' ][ 'nonce' ] = $wgOut->getCSPNonce();
+		$out->addJsConfigVars( $jsConfigVars );
+		$out->addModules( 'ext.photoSwipe' );
+		return '';
 	}
 }

@@ -1,50 +1,127 @@
-console.log('loading ext.photoSwipe.js');
-var PhotoSwipeLightBox = require('photoswipe-lightbox');
-//var PhotoSwipeLightBox = require('./lib/photoswipe-lightbox.cjs.js');
-//var PhotoSwipeLightBox = require('https://moasspedia.org/w/extensions/PhotoSwipe/modules/ext.photoSwipe/lib/photoswipe-lightbox.cjs.js');
-//console.log(PhotoSwipeLightBox);
-/*
-$(document).ready(function() {
-  if ($('head > script[type="module"]').length === 0) {
-    $('head').append(`<link rel='stylesheet' href='https://cdn.jsdelivr.net/gh/dimsemenov/PhotoSwipe@master/dist/photoswipe.css'/>`);
-    let html = `
-	  <script type='module'>
-	    document.querySelectorAll('table.gallery img').forEach((e,i) => {
-	      if (e.parentElement.tagName !== 'A') {
-	        document.querySelectorAll('img')[i].outerHTML = \`<a class='img' href='\${e.src}' data-my-size='\${e.naturalWidth}x\${e.naturalHeight}'>\${e.outerHTML}</a>\`;
-	      }
-	    });
-	    import PhotoSwipeLightbox from 'https:\/\/cdn.jsdelivr.net/gh/dimsemenov/PhotoSwipe@master/dist/photoswipe-lightbox.esm.min.js';
-	    import PhotoSwipeDeepZoom from 'https:\/\/cdn.jsdelivr.net/gh/dimsemenov/photoswipe-deep-zoom-plugin@main/photoswipe-deep-zoom-plugin.esm.min.js';
-	    const lightbox = new PhotoSwipeLightbox({
-	      gallery: '.gallery',
-	      children: 'a\.img',
-	      thumbSelector: 'a',
-	      pswpModule: () => import('https\:\/\/cdn.jsdelivr.net/gh/dimsemenov/PhotoSwipe@master/dist/photoswipe.esm.min.js'),
-	      allowPanToNext: false, // prevent swiping to the next slide when image is zoomed
-	      allowMouseDrag: true, // display dragging cursor at max zoom level
-	      wheelToZoom: true, // enable wheel-based zoom
-	      zoom: false // disable default zoom button
-	    });
-	    lightbox.addFilter('domItemData', (itemData, element, linkEl) => {
-	      if (linkEl) {
-	        const sizeAttr = linkEl.dataset.mySize;
-	        if (sizeAttr) {
-	          itemData.src = linkEl.href;
-	          itemData.w = Number(sizeAttr.split('x')[0]);
-	          itemData.h = Number(sizeAttr.split('x')[1]);
-	          itemData.msrc = linkEl.dataset.thumbSrc;
-	          itemData.thumbCropped = true;
-	        }
-	      }
-	      return itemData;
-	    });
-	    const deepZoomPlugin = new PhotoSwipeDeepZoom(lightbox, { tileSize: 256 });
-	    lightbox.init();
-        console.log('lightbox', lightbox);
-	  </script>
-    `;
-    $('head').append(html);
-  }
-});
-*/
+// https://attacomsian.com/blog/javascript-check-variable-is-object
+const isObject = ( obj ) => { return Object.prototype.toString.call( obj ) === '[object Object]'; };
+
+const isEnabled = ( plugin ) => {
+    if ( Array.isArray( config.plugins ) ) {
+        if ( config.plugins.includes( plugin ) ) {
+            return true;
+        }
+    } else if ( isObject( config.plugins ) ) {
+        if ( plugin in config.plugins ) {
+            if ( 'enabled' in config.plugins[plugin] ) {
+                if ( config.plugins[plugin].enabled ) {
+                    return true;
+                }
+            } else  {
+                return true;
+            }
+        }
+    }
+    return false;
+};
+
+let config = mw.config.get( 'wgPhotoSwipeConfig' );
+if ( config ) {
+    console.log( 'Loading PhotoSwipe' , config );
+    let dynamiccaption;
+    let lightbox;
+    let PhotoSwipe;
+    let PhotoSwipeLightbox;
+    let PhotoSwipeDeepZoomPlugin;
+    let PhotoSwipeDynamicCaption;
+    let PhotoSwipeVideoPlugin;
+    let videoplugin;
+
+    /*
+    * mode: recommended -> https://photoswipe.com/getting-started/#initialization
+    * mode: withoutdynamicimport -> https://photoswipe.com/getting-started/#without-dynamic-import
+    * mode: withoutlightbox -> https://photoswipe.com/data-sources/#without-lightbox-module
+    */
+    if ( config.mode !== 'withoutlightbox' ) { PhotoSwipeLightbox = require( 'js.photoswipe-lightbox' ); }
+    if ( config.mode === 'withoutdynamicimport' ) { PhotoSwipe = require( 'js.photoswipe' ); }
+    if ( isEnabled( 'DeepZoomPlugin' ) ) { PhotoSwipeDeepZoomPlugin = require( 'js.photoswipe-deep-zoom-plugin' ); }
+    if ( isEnabled( 'DynamicCaption' ) ) { PhotoSwipeDynamicCaption = require( 'js.photoswipe-dynamic-caption-plugin' ); }
+    if ( isEnabled( 'VideoPlugin' ) ) { PhotoSwipeVideoPlugin = require( 'js.photoswipe-video-plugin' ); }
+
+    // https://en.wikipedia.org/wiki/Cross-site_scripting
+    // https://mediawiki.org/wiki/Requests_for_comment/Content-Security-Policy
+    // https://mediawiki.org/wiki/Manual:$wgCSPHeader
+    // https://mediawiki.org/wiki/Manual:$wgCSPReportOnlyHeader
+    if ( config.addBeginning ) {
+        if ( typeof config.addBeginning === 'string' ) {
+            jQuery.globalEval( config.addBeginning, { nonce: config.nonce } );
+        } else if ( Array.isArray( config.addBeginning ) ) {
+            config.addBeginning.forEach( ( str ) => {
+                jQuery.globalEval( str, { nonce: config.nonce } );
+            });
+        }
+    }
+
+    // https://photoswipe.com/data-sources/#without-lightbox-module
+    if ( config.mode !== 'withoutlightbox' ) {
+        if ( typeof config.options.pswpModule === 'string' ) {
+            // Prepare require variable to be globally accessible within jQuery.globalEval
+            if ( !( 'require' in window ) ) window.require = require;
+            jQuery.globalEval( `var pswpModule = ${config.options.pswpModule}`, { nonce: config.nonce } );
+            config.options.pswpModule = pswpModule;
+        }
+        lightbox = new PhotoSwipeLightbox[ 'default' ]( config.options );
+        // Prepare lightbox variable to be globally accessible within jQuery.globalEval
+        if ( !( 'lightbox' in window ) ) window.lightbox = lightbox;
+    }
+
+    /*
+    /* Eventables: For executing lightbox events, filters, methods, and other relevant JS code.
+    *
+    * https://photoswipe.com/events/
+    * https://photoswipe.com/filters/
+    * https://photoswipe.com/methods/
+    *
+    * https://photoswipe.com/opening-or-closing-transition/#transition-duration-and-easing
+    * https://photoswipe.com/opening-or-closing-transition/#hiding-elements-that-overlap-thumbnails
+    * https://photoswipe.com/adding-ui-elements/#adding-a-button-to-the-toolbar
+    * https://photoswipe.com/adding-ui-elements/#adding-html-indicator-to-the-toolbar
+    * https://photoswipe.com/adding-ui-elements/#adding-download-button
+    * https://photoswipe.com/adding-ui-elements/#adding-navigation-indicator-bullets
+    * https://photoswipe.com/adding-ui-elements/#uiregisterelement-api
+    * https://photoswipe.com/caption/
+    * https://photoswipe.com/custom-content/#using-webp-image-format
+    * https://photoswipe.com/custom-content/#google-maps-demo
+    * https://photoswipe.com/data-sources/#custom-last-slide
+    * https://photoswipe.com/data-sources/#dynamically-generated-data
+    * https://photoswipe.com/data-sources/#custom-html-markup
+    * https://photoswipe.com/data-sources/#separate-dom-and-data
+    * https://photoswipe.com/native-fullscreen-on-open/
+    */
+    if ( config.addEventables ) {
+        if ( typeof config.addEventables === 'string' ) {
+            jQuery.globalEval( config.addEventables, { nonce: config.nonce } );
+        } else if ( Array.isArray( config.addEventables ) ) {
+            config.addEventables.forEach( ( str ) => {
+                jQuery.globalEval( str, { nonce: config.nonce } );
+            });
+        }
+    }
+
+    if ( isEnabled( 'DeepZoomPlugin' ) ) {
+        lightbox.deepzoomplugin = new PhotoSwipeDeepZoomPlugin[ 'default' ]( lightbox, config.plugins.DeepZoomPlugin.options );
+    }
+    if ( isEnabled( 'DynamicCaption' ) ) {
+        lightbox.dynamiccaption = new PhotoSwipeDynamicCaption[ 'default' ]( lightbox, config.plugins.DynamicCaption.options );
+    }
+    if ( isEnabled( 'VideoPlugin' ) ) {
+        lightbox.videoplugin = new PhotoSwipeVideoPlugin[ 'default' ]( lightbox, config.plugins.VideoPlugin.options );
+    }
+
+    lightbox.init();
+
+    if ( config.addEnd ) {
+        if ( typeof config.addEnd === 'string' ) {
+            jQuery.globalEval( config.addEnd, { nonce: config.nonce } );
+        } else if ( Array.isArray( config.addEnd ) ) {
+            config.addEnd.forEach( ( str ) => {
+                jQuery.globalEval( str, { nonce: config.nonce } );
+            });
+        }
+    }
+}

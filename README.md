@@ -8,6 +8,7 @@ This is a MediaWiki extension that provides a frontend JavaScript image gallery 
 
     wfLoadExtension( 'PhotoSwipe' );
 
+- run <code>./bin/build.sh</code> or <code>npm run build-lib</code> to prepopulate the JS libraries.
 - [Configure as required.](#configuration)
 - ✅ Done – Navigate to [Special:Version](https://mediawiki.org/wiki/Special:Version) on your wiki to verify that the extension is successfully installed.
 
