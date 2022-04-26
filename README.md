@@ -6,7 +6,7 @@ This is a MediaWiki extension that provides a frontend JavaScript image gallery 
 - Download and place the file(s) in a directory called <code>PhotoSwipe</code> in your <code>extensions/</code> folder.
 - Add the following code at the bottom of your [LocalSettings.php](https://mediawiki.org/wiki/Special:MyLanguage/Manual:LocalSettings.php):
 
-    wfLoadExtension( 'PhotoSwipe' );
+    <code>wfLoadExtension( 'PhotoSwipe' );</code>
 
 - run <code>./bin/build.sh</code> or <code>npm run build-lib</code> to prepopulate the JS libraries.
 - [Configure as required.](#configuration)
@@ -41,125 +41,124 @@ Use extension configuration by default
 
 Use argument configuration (overrides extension configuration)
 
-<code>&lt;photoswipe
-  mode=recommended
-  options="{
-    &quot;gallery&quot;: &quot;table.gallery&quot;,
-    &quot;children&quot;: &quot;a.img&quot;,
-    &quot;thumbSelector&quot;: &quot;a.img&quot;,
-    &quot;pswpModule&quot;: &quot;() =&gt; require(&apos;js.photoswipe&apos;)&quot;,
-    &quot;allowPanToNext&quot;: false,
-    &quot;allowMouseDrag&quot;: true,
-    &quot;wheelToZoom&quot;: true,
-    &quot;zoom&quot;: false
-  }"
-  addBeginning="document.querySelectorAll(&apos;table.gallery img&apos;).forEach((e,i) =&gt; {
-    if (e.parentElement.tagName !== &apos;A&apos;) {
-      document.querySelectorAll(&apos;img&apos;)[i].outerHTML = `&lt;a href=&quot;${e.src}&quot; data-my-size=&quot;${e.naturalWidth}x${e.naturalHeight}&quot;&gt;${e.outerHTML}&lt;/a&gt;`;
-    }
-  });"
-  "addEventables": [
-    "const backEasing = { in: &apos;cubic-bezier(0.6, -0.28, 0.7, 1)&apos;, out: &apos;cubic-bezier(0.3, 0, 0.32, 1.275)&apos;, inOut: &apos;cubic-bezier(0.68, -0.55, 0.265, 1.55)&apos; }",
-    "lightbox.on( &apos;firstUpdate&apos;, () =&gt; { lightbox.pswp.options.easing = backEasing.out; } );",
-    "lightbox.on( &apos;initialZoomInEnd&apos;, () =&gt; { lightbox.pswp.options.easing = backEasing.inOut; } );",
-    "lightbox.on( &apos;close&apos;, () =&gt; { lightbox.pswp.options.easing = backEasing.in; } );",
-    "lightbox.addFilter( &apos;domItemData&apos;, ( itemData, element, linkEl ) =&gt; { if ( linkEl ) { const sizeAttr = linkEl.dataset.mySize; itemData.src = linkEl.href; itemData.w = Number( sizeAttr.split( &apos;x&apos; )[ 0 ] ); itemData.h = Number( sizeAttr.split( &apos;x&apos; )[ 1 ] ); itemData.msrc = linkEl.dataset.thumbSrc; itemData.thumbCropped = true; } return itemData; } );"
-  ],
-  plugins="{
-	&quot;DeepZoomPlugin&quot;: {
-		&quot;enabled&quot;: true,
-		&quot;options&quot;: {
-			&quot;tileSize&quot;: 256
-		}
-	},
-	&quot;DynamicCaption&quot;: {
-		&quot;enabled&quot;: true,
-		&quot;options&quot;: {
-			&quot;captionContent&quot;: &quot;.pswp-caption-content&quot;,
-			&quot;horizontalEdgeThreshold&quot;: 20,
-			&quot;mobileCaptionOverlapRatio&quot;: 0.3,
-			&quot;mobileLayoutBreakpoint&quot;: 600,
-			&quot;type&quot;: &quot;auto&quot;
-		}
-	},
-	&quot;VideoPlugin&quot;: {
-		&quot;enabled&quot;: true,
-		&quot;options&quot;: {}
-	}
-  }" /&gt;</code>
+    <code>&lt;photoswipe
+      mode=recommended
+      options="{
+        &quot;gallery&quot;: &quot;table.gallery&quot;,
+        &quot;children&quot;: &quot;a.img&quot;,
+        &quot;thumbSelector&quot;: &quot;a.img&quot;,
+        &quot;pswpModule&quot;: &quot;() =&gt; require(&apos;js.photoswipe&apos;)&quot;,
+        &quot;allowPanToNext&quot;: false,
+        &quot;allowMouseDrag&quot;: true,
+        &quot;wheelToZoom&quot;: true,
+        &quot;zoom&quot;: false
+      }"
+      addBeginning="document.querySelectorAll(&apos;table.gallery img&apos;).forEach((e,i) =&gt; {
+        if (e.parentElement.tagName !== &apos;A&apos;) {
+          document.querySelectorAll(&apos;img&apos;)[i].outerHTML = `&lt;a href=&quot;${e.src}&quot; data-my-size=&quot;${e.naturalWidth}x${e.naturalHeight}&quot;&gt;${e.outerHTML}&lt;/a&gt;`;
+        }
+      });"
+      "addEventables": [
+        "const backEasing = { in: &apos;cubic-bezier(0.6, -0.28, 0.7, 1)&apos;, out: &apos;cubic-bezier(0.3, 0, 0.32, 1.275)&apos;, inOut: &apos;cubic-bezier(0.68, -0.55, 0.265, 1.55)&apos; }",
+        "lightbox.on( &apos;firstUpdate&apos;, () =&gt; { lightbox.pswp.options.easing = backEasing.out; } );",
+        "lightbox.on( &apos;initialZoomInEnd&apos;, () =&gt; { lightbox.pswp.options.easing = backEasing.inOut; } );",
+        "lightbox.on( &apos;close&apos;, () =&gt; { lightbox.pswp.options.easing = backEasing.in; } );",
+        "lightbox.addFilter( &apos;domItemData&apos;, ( itemData, element, linkEl ) =&gt; { if ( linkEl ) { const sizeAttr = linkEl.dataset.mySize; itemData.src = linkEl.href; itemData.w = Number( sizeAttr.split( &apos;x&apos; )[ 0 ] ); itemData.h = Number( sizeAttr.split( &apos;x&apos; )[ 1 ] ); itemData.msrc = linkEl.dataset.thumbSrc; itemData.thumbCropped = true; } return itemData; } );"
+      ],
+      plugins="{
+        &quot;DeepZoomPlugin&quot;: {
+          &quot;enabled&quot;: true,
+          &quot;options&quot;: {
+            &quot;tileSize&quot;: 256
+          }
+        },
+        &quot;DynamicCaption&quot;: {
+          &quot;enabled&quot;: true,
+          &quot;options&quot;: {
+            &quot;captionContent&quot;: &quot;.pswp-caption-content&quot;,
+            &quot;horizontalEdgeThreshold&quot;: 20,
+            &quot;mobileCaptionOverlapRatio&quot;: 0.3,
+            &quot;mobileLayoutBreakpoint&quot;: 600,
+            &quot;type&quot;: &quot;auto&quot;
+          }
+        },
+        &quot;VideoPlugin&quot;: {
+          &quot;enabled&quot;: true,
+          &quot;options&quot;: {}
+        }
+      }" /&gt;</code>
 
 Use content configuration (overrides extension configuration and argument configuration)
 
-* Note: Comments and multi-line strings are permitted here
+Note: Comments and multi-line strings are permitted here
 
-<code>&lt;photoswipe&gt;
-{
-	"mode": "recommended",
-	"options": {
-		"gallery": "table.gallery",
-		"children": "a.img",
-		"thumbSelector": "a.img",
-		"pswpModule": "() => require( 'js.photoswipe' )",
-		// Recommended PhotoSwipe options for this plugin
-		"allowPanToNext": false, // prevent swiping to the next slide when image is zoomed
-		"allowMouseDrag": true, // display dragging cursor at max zoom level
-		"wheelToZoom": true, // enable wheel-based zoom
-		"zoom": false // disable default zoom button
-	},
-	"addBeginning": [
-		"document.querySelectorAll( 'table.gallery img' ).forEach( ( e, i ) => {
-			if ( e.parentElement.tagName !== 'A' ) {
-				document.querySelectorAll( 'img' )[ i ].outerHTML = `<a class='img' href='${e.src}'; data-my-size='${e.naturalWidth}x${e.naturalHeight}'>${e.outerHTML}</a>`;
-			}
-		} );"
-	],
-	"addEventables": [
-		"const backEasing = {
-			in: 'cubic-bezier(0.6, -0.28, 0.7, 1)',
-			out: 'cubic-bezier(0.3, 0, 0.32, 1.275)',
-			inOut: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)'
-		}",
-		"lightbox.on( 'firstUpdate', () => { lightbox.pswp.options.easing = backEasing.out; } );",
-		"lightbox.on( 'initialZoomInEnd', () => { lightbox.pswp.options.easing = backEasing.inOut; } );",
-		"lightbox.on( 'close', () => { lightbox.pswp.options.easing = backEasing.in; } );",
-		"lightbox.addFilter( 'domItemData', ( itemData, element, linkEl ) => {
-			if ( linkEl ) {
-			  const sizeAttr = linkEl.dataset.mySize;
-
-			  itemData.src = linkEl.href;
-			  itemData.w = Number( sizeAttr.split( 'x' )[ 0 ] );
-			  itemData.h = Number( sizeAttr.split( 'x' )[ 1 ] );
-			  itemData.msrc = linkEl.dataset.thumbSrc;
-			  itemData.thumbCropped = true;
-			}
-			return itemData;
-		} );"
-	],
-	"addEnd": [],
-	"plugins": {
-		"DeepZoomPlugin": {
-			"enabled": true,
-			"options": {
-				"tileSize": 256
-			}
-		},
-		"DynamicCaption": {
-			"enabled": true,
-			"options": {
-				"captionContent": ".pswp-caption-content",
-				"horizontalEdgeThreshold": 20,
-				"mobileCaptionOverlapRatio": 0.3,
-				"mobileLayoutBreakpoint": 600,
-				"type": "auto"
-			}
-		},
-		"VideoPlugin": {
-			"enabled": true,
-			"options": {}
-		}
-	}
-}
-&lt;/photoswipe&gt;</code>
+    <code>&lt;photoswipe&gt;
+    {
+    	"mode": "recommended",
+    	"options": {
+    		"gallery": "table.gallery",
+    		"children": "a.img",
+    		"thumbSelector": "a.img",
+    		"pswpModule": "() => require( 'js.photoswipe' )",
+    		// Recommended PhotoSwipe options for this plugin
+    		"allowPanToNext": false, // prevent swiping to the next slide when image is zoomed
+    		"allowMouseDrag": true, // display dragging cursor at max zoom level
+    		"wheelToZoom": true, // enable wheel-based zoom
+    		"zoom": false // disable default zoom button
+    	},
+    	"addBeginning": [
+    		"document.querySelectorAll( 'table.gallery img' ).forEach( ( e, i ) => {
+    			if ( e.parentElement.tagName !== 'A' ) {
+    				document.querySelectorAll( 'img' )[ i ].outerHTML = `<a class='img' href='${e.src}'; data-my-size='${e.naturalWidth}x${e.naturalHeight}'>${e.outerHTML}</a>`;
+    			}
+    		} );"
+    	],
+    	"addEventables": [
+    		"const backEasing = {
+    			in: 'cubic-bezier(0.6, -0.28, 0.7, 1)',
+    			out: 'cubic-bezier(0.3, 0, 0.32, 1.275)',
+    			inOut: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)'
+    		}",
+    		"lightbox.on( 'firstUpdate', () => { lightbox.pswp.options.easing = backEasing.out; } );",
+    		"lightbox.on( 'initialZoomInEnd', () => { lightbox.pswp.options.easing = backEasing.inOut; } );",
+    		"lightbox.on( 'close', () => { lightbox.pswp.options.easing = backEasing.in; } );",
+    		"lightbox.addFilter( 'domItemData', ( itemData, element, linkEl ) => {
+    			if ( linkEl ) {
+    				const sizeAttr = linkEl.dataset.mySize;
+    				itemData.src = linkEl.href;
+    				itemData.w = Number( sizeAttr.split( 'x' )[ 0 ] );
+    				itemData.h = Number( sizeAttr.split( 'x' )[ 1 ] );
+    				itemData.msrc = linkEl.dataset.thumbSrc;
+    				itemData.thumbCropped = true;
+    			}
+    			return itemData;
+    		} );"
+    	],
+    	"addEnd": [],
+    	"plugins": {
+    		"DeepZoomPlugin": {
+    			"enabled": true,
+    			"options": {
+    				"tileSize": 256
+    			}
+    		},
+    		"DynamicCaption": {
+    			"enabled": true,
+    			"options": {
+    				"captionContent": ".pswp-caption-content",
+    				"horizontalEdgeThreshold": 20,
+    				"mobileCaptionOverlapRatio": 0.3,
+    				"mobileLayoutBreakpoint": 600,
+    				"type": "auto"
+    			}
+    		},
+    		"VideoPlugin": {
+    			"enabled": true,
+    			"options": {}
+    		}
+    	}
+    }
+    &lt;/photoswipe&gt;</code>
 
 ## See also
 
