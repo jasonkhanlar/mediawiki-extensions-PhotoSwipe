@@ -35,6 +35,8 @@ By default, PhotoSwipeConfig uses the string key as the model ID that this profi
 
 ## Usage
 
+Note: Images and gallery content not included.
+
 Use extension configuration by default
 
 <code>&lt;photoswipe/&gt;</code>
