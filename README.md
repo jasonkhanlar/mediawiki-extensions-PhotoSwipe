@@ -6,7 +6,7 @@ This is a MediaWiki extension that provides a frontend JavaScript image gallery 
 - Download and place the file(s) in a directory called <code>PhotoSwipe</code> in your <code>extensions/</code> folder.
 - Add the following code at the bottom of your [LocalSettings.php](https://mediawiki.org/wiki/Special:MyLanguage/Manual:LocalSettings.php):
 
-    wfLoadExtension( 'JsonConfig' );
+    wfLoadExtension( 'PhotoSwipe' );
 
 - [Configure as required.](#configuration)
 - ✅ Done – Navigate to [Special:Version](https://mediawiki.org/wiki/Special:Version) on your wiki to verify that the extension is successfully installed.
@@ -19,43 +19,147 @@ This is a MediaWiki extension that provides a frontend JavaScript image gallery 
 This variable defines profiles for each type of configuration pages. <code>$wgPhotoSwipeConfig</code></tvar> is an associative array of arrays, with each sub-array having zero or more of the following parameters.
 By default, PhotoSwipeConfig uses the string key as the model ID that this profile represents, but in case you want to reuse the same model ID in more than one profile, you can override it with the <code>model</code> parameter.
 
-| parameter        | type              | default       | description |
-| ---------------- | ----------------- | ------------- | ---- |
-| method           | string            | 'recommended' | Adjusts the usage of PhotoSwipe library. Possible values: ['recommended'](https://photoswipe.com/getting-started/#initialization), ['withoutdynamicimport'](https://photoswipe.com/getting-started/#without-dynamic-import), ['withoutlightbox'](https://photoswipe.com/data-sources/#without-lightbox-module) |
-| options          | object            | [library recommendation](https://photoswipe.com/getting-started/#initialization) | The <code>options</code> object passed into the <code>PhotoSwipeLightbox</code> instance. |
-| other_beginning  | string            | ''            | Additional JavaScript to add in the beginning. |
-|                  | array of strings  | []            | An array of strings of JavaScript to add. |
-| other_eventables | string            | ''            | Additional JavaScript to add in the middle. |
-|                  | array of strings  | []            | An array of strings of JavaScript to add. |
-| other_end        | string            | ''            | Additional JavaScript to add in the end. |
-|                  | array of strings  | []            | An array of strings of JavaScript to add. |
-| plugins          | array of strings  | []            | An array of strings of names of plugins to enable with default options. See <code>PhotoSwipeVendorList</code>. |
-|                  | object of options | {}            | An object of keys of plugins to enable with custom options. The values are the <code>options</code> object passed to the plugin library. |
-| vendor           | string            | 'local'       | Source of libraries to use: CDN 'cdnjs', 'jsdelivr', 'unpkg', or 'local'. See <code>PhotoSwipeVendorList</code>. |
-| version          | string            | 'latest'      | Version of libraries to use: Specific version release (e.g. 'v5.2.2', or 'latest'. |
+| parameter     | type              | default       | description |
+| ------------- | ----------------- | ------------- | ---- |
+| mode          | string            | 'recommended' | Adjusts the usage of PhotoSwipe library. Possible values: ['recommended'](https://photoswipe.com/getting-started/#initialization), ['withoutDynamicImport'](https://photoswipe.com/getting-started/#without-dynamic-import), ['withoutLightbox'](https://photoswipe.com/data-sources/#without-lightbox-module) |
+| options       | object            | [library recommendation](https://photoswipe.com/getting-started/#initialization) | The <code>options</code> object passed into the <code>PhotoSwipeLightbox</code> instance. |
+| addBeginning  | string            | ''            | Additional JavaScript to add in the beginning. |
+|               | array of strings  | []            | An array of strings of JavaScript to add. |
+| addEventables | string            | ''            | Additional JavaScript to add in the middle. |
+|               | array of strings  | []            | An array of strings of JavaScript to add. |
+| addEnd        | string            | ''            | Additional JavaScript to add in the end. |
+|               | array of strings  | []            | An array of strings of JavaScript to add. |
+| plugins       | array of strings  | []            | An array of strings of names of plugins to enable with default options. See <code>PhotoSwipeVendorList</code>. |
+|               | object of options | {}            | An object of keys of plugins to enable with custom options. The values are the <code>options</code> object passed to the plugin library. |
 
 ## Usage
 
+Use extension configuration by default
+
+<code>&lt;photoswipe/&gt;</code>
+
+Use argument configuration (overrides extension configuration)
+
+<code>&lt;photoswipe
+  mode=recommended
+  options="{
+    &quot;gallery&quot;: &quot;table.gallery&quot;,
+    &quot;children&quot;: &quot;a.img&quot;,
+    &quot;thumbSelector&quot;: &quot;a.img&quot;,
+    &quot;pswpModule&quot;: &quot;() =&gt; require(&apos;js.photoswipe&apos;)&quot;,
+    &quot;allowPanToNext&quot;: false,
+    &quot;allowMouseDrag&quot;: true,
+    &quot;wheelToZoom&quot;: true,
+    &quot;zoom&quot;: false
+  }"
+  addBeginning="document.querySelectorAll(&apos;table.gallery img&apos;).forEach((e,i) =&gt; {
+    if (e.parentElement.tagName !== &apos;A&apos;) {
+      document.querySelectorAll(&apos;img&apos;)[i].outerHTML = `&lt;a href=&quot;${e.src}&quot; data-my-size=&quot;${e.naturalWidth}x${e.naturalHeight}&quot;&gt;${e.outerHTML}&lt;/a&gt;`;
+    }
+  });"
+  "addEventables": [
+    "const backEasing = { in: &apos;cubic-bezier(0.6, -0.28, 0.7, 1)&apos;, out: &apos;cubic-bezier(0.3, 0, 0.32, 1.275)&apos;, inOut: &apos;cubic-bezier(0.68, -0.55, 0.265, 1.55)&apos; }",
+    "lightbox.on( &apos;firstUpdate&apos;, () =&gt; { lightbox.pswp.options.easing = backEasing.out; } );",
+    "lightbox.on( &apos;initialZoomInEnd&apos;, () =&gt; { lightbox.pswp.options.easing = backEasing.inOut; } );",
+    "lightbox.on( &apos;close&apos;, () =&gt; { lightbox.pswp.options.easing = backEasing.in; } );",
+    "lightbox.addFilter( &apos;domItemData&apos;, ( itemData, element, linkEl ) =&gt; { if ( linkEl ) { const sizeAttr = linkEl.dataset.mySize; itemData.src = linkEl.href; itemData.w = Number( sizeAttr.split( &apos;x&apos; )[ 0 ] ); itemData.h = Number( sizeAttr.split( &apos;x&apos; )[ 1 ] ); itemData.msrc = linkEl.dataset.thumbSrc; itemData.thumbCropped = true; } return itemData; } );"
+  ],
+  plugins="{
+	&quot;DeepZoomPlugin&quot;: {
+		&quot;enabled&quot;: true,
+		&quot;options&quot;: {
+			&quot;tileSize&quot;: 256
+		}
+	},
+	&quot;DynamicCaption&quot;: {
+		&quot;enabled&quot;: true,
+		&quot;options&quot;: {
+			&quot;captionContent&quot;: &quot;.pswp-caption-content&quot;,
+			&quot;horizontalEdgeThreshold&quot;: 20,
+			&quot;mobileCaptionOverlapRatio&quot;: 0.3,
+			&quot;mobileLayoutBreakpoint&quot;: 600,
+			&quot;type&quot;: &quot;auto&quot;
+		}
+	},
+	&quot;VideoPlugin&quot;: {
+		&quot;enabled&quot;: true,
+		&quot;options&quot;: {}
+	}
+  }" /&gt;</code>
+
+Use content configuration (overrides extension configuration and argument configuration)
+
+* Note: Comments and multi-line strings are permitted here
+
+<code>&lt;photoswipe&gt;
+{
+	"mode": "recommended",
+	"options": {
+		"gallery": "table.gallery",
+		"children": "a.img",
+		"thumbSelector": "a.img",
+		"pswpModule": "() => require( 'js.photoswipe' )",
+		// Recommended PhotoSwipe options for this plugin
+		"allowPanToNext": false, // prevent swiping to the next slide when image is zoomed
+		"allowMouseDrag": true, // display dragging cursor at max zoom level
+		"wheelToZoom": true, // enable wheel-based zoom
+		"zoom": false // disable default zoom button
+	},
+	"addBeginning": [
+		"document.querySelectorAll( 'table.gallery img' ).forEach( ( e, i ) => {
+			if ( e.parentElement.tagName !== 'A' ) {
+				document.querySelectorAll( 'img' )[ i ].outerHTML = `<a class='img' href='${e.src}'; data-my-size='${e.naturalWidth}x${e.naturalHeight}'>${e.outerHTML}</a>`;
+			}
+		} );"
+	],
+	"addEventables": [
+		"const backEasing = {
+			in: 'cubic-bezier(0.6, -0.28, 0.7, 1)',
+			out: 'cubic-bezier(0.3, 0, 0.32, 1.275)',
+			inOut: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)'
+		}",
+		"lightbox.on( 'firstUpdate', () => { lightbox.pswp.options.easing = backEasing.out; } );",
+		"lightbox.on( 'initialZoomInEnd', () => { lightbox.pswp.options.easing = backEasing.inOut; } );",
+		"lightbox.on( 'close', () => { lightbox.pswp.options.easing = backEasing.in; } );",
+		"lightbox.addFilter( 'domItemData', ( itemData, element, linkEl ) => {
+			if ( linkEl ) {
+			  const sizeAttr = linkEl.dataset.mySize;
+
+			  itemData.src = linkEl.href;
+			  itemData.w = Number( sizeAttr.split( 'x' )[ 0 ] );
+			  itemData.h = Number( sizeAttr.split( 'x' )[ 1 ] );
+			  itemData.msrc = linkEl.dataset.thumbSrc;
+			  itemData.thumbCropped = true;
+			}
+			return itemData;
+		} );"
+	],
+	"addEnd": [],
+	"plugins": {
+		"DeepZoomPlugin": {
+			"enabled": true,
+			"options": {
+				"tileSize": 256
+			}
+		},
+		"DynamicCaption": {
+			"enabled": true,
+			"options": {
+				"captionContent": ".pswp-caption-content",
+				"horizontalEdgeThreshold": 20,
+				"mobileCaptionOverlapRatio": 0.3,
+				"mobileLayoutBreakpoint": 600,
+				"type": "auto"
+			}
+		},
+		"VideoPlugin": {
+			"enabled": true,
+			"options": {}
+		}
+	}
+}
+&lt;/photoswipe&gt;</code>
+
 ## See also
 
-### <code>PhotoSwipeVendorList</code>
-
-List of vendors providing PhotoSwipe libraries.
-
-- Content Delivery Networks:
-
- - 'cdnjs'
- 
-    - Only PhotoSwipe v5.2.2 is available from this source.
-    - Additional plugin libraries are not available.
-
- - 'jsdelivr'
- 
-    - All libraries and plugins are available from this source.
-
- - 'unpkg'
- 
-    - Only PhotoSwipe, PhotoSwipeDeepZoomPlugin, and PhotoSwipeDynamicCaption are available from this source.
-    - [PhotoSwipeVideoPlugin is not yet available](https://github.com/dimsemenov/photoswipe-video-plugin/issues/1#issuecomment-1102087166).
-
-- 'local'
+https://photoswipe.com/getting-started/
