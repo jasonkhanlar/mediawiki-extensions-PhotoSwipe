@@ -33,7 +33,9 @@
 	"require": {
 		"php": ">=7.1",
 		"composer/installers": ">=1.0.1",
-		"respect/validation": "^2.2"
+		"respect/validation": "^2.2",
+		"adhocore/json-comment": "^1.1",
+		"seld/jsonlint": "^1.9"
 	},
 	"require-dev": {
 		"mediawiki/mediawiki-codesniffer": "38.0.0",
