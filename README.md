@@ -43,7 +43,7 @@ Use extension configuration by default
 
 Use argument configuration (overrides extension configuration)
 
-    <code>&lt;photoswipe
+    <photoswipe
       mode=recommended
       options="{
         &quot;gallery&quot;: &quot;table.gallery&quot;,
@@ -88,13 +88,13 @@ Use argument configuration (overrides extension configuration)
           &quot;enabled&quot;: true,
           &quot;options&quot;: {}
         }
-      }" /&gt;</code>
+      }" />
 
 Use content configuration (overrides extension configuration and argument configuration)
 
 Note: Comments and multi-line strings are permitted here
 
-    <code>&lt;photoswipe&gt;
+    <photoswipe>
     {
     	"mode": "recommended",
     	"options": {
@@ -160,7 +160,7 @@ Note: Comments and multi-line strings are permitted here
     		}
     	}
     }
-    &lt;/photoswipe&gt;</code>
+    </photoswipe>
 
 ## See also
 
