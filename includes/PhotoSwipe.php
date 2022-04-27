@@ -261,7 +261,7 @@ class PhotoSwipe {
 								strtolower( $key ),
 								array_map( 'strtolower', $ccKeyNames )
 							) ];
-							/ *
+							/*
 							$GLOBALS[ 'wgPhotoSwipeConfig' ][ $ccKeyName ] = $value;
 							if (
 								v::in( array_map( 'strtolower', $ccKeyNames ) )
