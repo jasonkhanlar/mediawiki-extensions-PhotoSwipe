@@ -17,8 +17,7 @@ This is a MediaWiki extension that provides a frontend JavaScript image gallery 
 
 ### <code>$wgPhotoSwipeConfig</code>
 
-This variable defines profiles for each type of configuration pages. <code>$wgPhotoSwipeConfig</code></tvar> is an associative array of arrays, with each sub-array having zero or more of the following parameters.
-By default, PhotoSwipeConfig uses the string key as the model ID that this profile represents, but in case you want to reuse the same model ID in more than one profile, you can override it with the <code>model</code> parameter.
+This defines values for each section of configuration. <code>$wgPhotoSwipeConfig</code></tvar> is an associative array of mixed values, with each sub-value having zero or more of the following parameters.
 
 | parameter     | type              | default       | description |
 | ------------- | ----------------- | ------------- | ---- |
@@ -32,6 +31,128 @@ By default, PhotoSwipeConfig uses the string key as the model ID that this profi
 |               | array of strings  | []            | An array of strings of JavaScript to add. |
 | plugins       | array of strings  | []            | An array of strings of names of plugins to enable with default options. See <code>PhotoSwipeVendorList</code>. |
 |               | object of options | {}            | An object of keys of plugins to enable with custom options. The values are the <code>options</code> object passed to the plugin library. |
+
+For example, in your LocalSettings.php: (note: make sure to \ escape all $ in string values containing JavaScript)
+
+#### all-in-one associative array
+
+    $wgPhotoSwipeConfig = [
+    	"mode" => "recommended",
+    	"options" => [
+    		"gallery" => "table.gallery",
+    		"children" => "a.img",
+    		"thumbSelector" => "a.img",
+    		"pswpModule" => "() => require( 'js.photoswipe' )",
+    		// Recommended PhotoSwipe options for this plugin
+    		"allowPanToNext" => false, // prevent swiping to the next slide when image is zoomed
+    		"allowMouseDrag" => true, // display dragging cursor at max zoom level
+    		"wheelToZoom" => true, // enable wheel-based zoom
+    		"zoom" => false // disable default zoom button
+    	],
+    	"addBeginning" => [
+    		"document.querySelectorAll( 'table.gallery img' ).forEach( ( e, i ) => {
+    			if ( e.parentElement.tagName !== 'A' ) {
+    				document.querySelectorAll( 'img' )[ i ].outerHTML = `<a class='img' href='\${e.src}'; data-my-size='\${e.naturalWidth}x\${e.naturalHeight}'>\${e.outerHTML}</a>`;
+    			}
+    		} );"
+    	],
+    	"addEventables" => [
+    		"const backEasing = {
+    			in: 'cubic-bezier(0.6, -0.28, 0.7, 1)',
+    			out: 'cubic-bezier(0.3, 0, 0.32, 1.275)',
+    			inOut: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)'
+    		}",
+    		"lightbox.on( 'firstUpdate', () => { lightbox.pswp.options.easing = backEasing.out; } );",
+    		"lightbox.on( 'initialZoomInEnd', () => { lightbox.pswp.options.easing = backEasing.inOut; } );",
+    		"lightbox.on( 'close', () => { lightbox.pswp.options.easing = backEasing.in; } );",
+    		"lightbox.addFilter( 'domItemData', ( itemData, element, linkEl ) => {
+    			if ( linkEl ) {
+    				const sizeAttr = linkEl.dataset.mySize;
+    				itemData.src = linkEl.href;
+    				itemData.w = Number( sizeAttr.split( 'x' )[ 0 ] );
+    				itemData.h = Number( sizeAttr.split( 'x' )[ 1 ] );
+    				itemData.msrc = linkEl.dataset.thumbSrc;
+    				itemData.thumbCropped = true;
+    			}
+    			return itemData;
+    		} );"
+    	],
+    	"addEnd" => [],
+    	"plugins" => [
+    		"DeepZoomPlugin" => [
+    			"enabled" => true,
+    			"options" => [
+    				"tileSize" => 256
+    			]
+    		],
+    		"DynamicCaption" => [
+    			"enabled" => true,
+    			"options" => [
+    				"captionContent" => ".pswp-caption-content",
+    				"horizontalEdgeThreshold" => 20,
+    				"mobileCaptionOverlapRatio" => 0.3,
+    				"mobileLayoutBreakpoint" => 600,
+    				"type" => "auto"
+    			]
+    		],
+    		"VideoPlugin" => [
+    			"enabled" => true,
+    			"options" => []
+    		]
+    	]
+    ];
+
+#### individual key values of associative array
+
+    $wgPhotoSwipeConfig["mode"] = "recommended";
+    $wgPhotoSwipeConfig["options"]["gallery"] = "table.gallery";
+    $wgPhotoSwipeConfig["options"]["children"] = "a.img";
+    $wgPhotoSwipeConfig["options"]["thumbSelector"] = "a.img";
+    $wgPhotoSwipeConfig["options"]["pswpModule"] = "() => require( 'js.photoswipe' )";
+    // Recommended PhotoSwipe options for this plugin
+    $wgPhotoSwipeConfig["options"]["allowPanToNext"] = false; // prevent swiping to the next slide when image is zoomed
+    $wgPhotoSwipeConfig["options"]["allowMouseDrag"] = true; // display dragging cursor at max zoom level
+    $wgPhotoSwipeConfig["options"]["wheelToZoom"] = true; // enable wheel-based zoom
+    $wgPhotoSwipeConfig["options"]["zoom"] = false; // disable default zoom button
+    $wgPhotoSwipeConfig["addBeginning"] = [
+    	"document.querySelectorAll( 'table.gallery img' ).forEach( ( e, i ) => {
+    		if ( e.parentElement.tagName !== 'A' ) {
+    			document.querySelectorAll( 'img' )[ i ].outerHTML = `<a class='img' href='\${e.src}'; data-my-size='\${e.naturalWidth}x\${e.naturalHeight}'>\${e.outerHTML}</a>`;
+    		}
+    	} );"
+    ];
+    $wgPhotoSwipeConfig["addEventables"] = [
+    	"const backEasing = {
+    		in: 'cubic-bezier(0.6, -0.28, 0.7, 1)',
+    		out: 'cubic-bezier(0.3, 0, 0.32, 1.275)',
+    		inOut: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)'
+    	}",
+    	"lightbox.on( 'firstUpdate', () => { lightbox.pswp.options.easing = backEasing.out; } );",
+    	"lightbox.on( 'initialZoomInEnd', () => { lightbox.pswp.options.easing = backEasing.inOut; } );",
+    	"lightbox.on( 'close', () => { lightbox.pswp.options.easing = backEasing.in; } );",
+    	"lightbox.addFilter( 'domItemData', ( itemData, element, linkEl ) => {
+    		if ( linkEl ) {
+    			const sizeAttr = linkEl.dataset.mySize;
+    			itemData.src = linkEl.href;
+    			itemData.w = Number( sizeAttr.split( 'x' )[ 0 ] );
+    			itemData.h = Number( sizeAttr.split( 'x' )[ 1 ] );
+    			itemData.msrc = linkEl.dataset.thumbSrc;
+    			itemData.thumbCropped = true;
+    		}
+    		return itemData;
+    	} );"
+    ];
+    $wgPhotoSwipeConfig["addEnd"] = [];
+    $wgPhotoSwipeConfig["plugins"]["DeepZoomPlugin"]["enabled"] = true;
+    $wgPhotoSwipeConfig["plugins"]["DeepZoomPlugin"]["options"]["tileSize"] = 256;
+    $wgPhotoSwipeConfig["plugins"]["DynamicCaption"]["enabled"] = true;
+    $wgPhotoSwipeConfig["plugins"]["DynamicCaption"]["options"]["captionContent"] = ".pswp-caption-content";
+    $wgPhotoSwipeConfig["plugins"]["DynamicCaption"]["options"]["horizontalEdgeThreshold"] = 20;
+    $wgPhotoSwipeConfig["plugins"]["DynamicCaption"]["options"]["mobileCaptionOverlapRatio"] = 0.3;
+    $wgPhotoSwipeConfig["plugins"]["DynamicCaption"]["options"]["mobileLayoutBreakpoint"] = 600;
+    $wgPhotoSwipeConfig["plugins"]["DynamicCaption"]["options"]["type"] = "auto";
+    $wgPhotoSwipeConfig["plugins"]["VideoPlugin"]["enabled"] = true;
+    $wgPhotoSwipeConfig["plugins"]["VideoPlugin"]["options"] = [];
 
 ## Usage
 
