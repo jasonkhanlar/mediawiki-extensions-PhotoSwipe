@@ -1,5 +1,20 @@
 <?php
 /*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/*
  * Title PhotoSwipe class
  * @ingroup Extensions
  * @author Jason Khanlar
@@ -19,22 +34,23 @@ use Seld\JsonLint\JsonParser;
 
 class PhotoSwipe {
 	/**
-	* @var config The PhotoSwipe extension.json configuration
-	*/
+	 * @var config The PhotoSwipe extension.json configuration
+	 */
 	private static $config = [];
 
 	/**
-	* Loads a config value for a given key from the main extension.json config
-	* Returns null if config key does not exist
-	* @link https://mediawiki.org/wiki/Manual:Configuration_for_developers
-	*
-	* @param string $key The name of the key
-	*
-	* @return mixed|null The value of the key
-	*/
+	 * Loads a config value for a given key from the main extension.json config
+	 * Returns null if config key does not exist
+	 * @link https://mediawiki.org/wiki/Manual:Configuration_for_developers
+	 *
+	 * @param string $key The name of the key
+	 *
+	 * @return mixed|null The value of the key
+	 */
 	protected function getConfigValue( string $key ) {
 		if ( !self::$config ) {
-			self::$config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'PhotoSwipe' );
+			self::$config = MediaWikiServices::getInstance()->getConfigFactory()
+				->makeConfig( 'PhotoSwipe' );
 		}
 
 		try {
@@ -48,18 +64,19 @@ class PhotoSwipe {
 	}
 
 	/**
-	* Returns true or false depending on if plugin is enabled
-	*
-	* @param string &$resource The configuration resource (extension, attribute, or content)
-	* @param string &$key The name of the key
-	* @param mixed &$value The value of the key
-	* @return boolean
-	*/
+	 * Returns true or false depending on if plugin is enabled
+	 *
+	 * @param string &$resource The configuration resource (extension, attribute, or content)
+	 * @param string &$key The name of the key
+	 * @param mixed &$value The value of the key
+	 * @return boolean
+	 */
 	protected function isValidConfig( string &$resource, string &$key, &$value ) {
 		/*
-		* MediaWiki evaluates objects in extension.json as associative arrays. Evaluate the same way for tag attributes and content
-		* See https://github.com/wikimedia/mediawiki/blob/master/includes/registration/ExtensionRegistry.php#L372
-		*/
+		 * MediaWiki evaluates objects in extension.json as associative arrays.
+		 * Evaluate the same way for tag attributes and content
+		 * See https://github.com/wikimedia/mediawiki/blob/master/includes/registration/ExtensionRegistry.php#L372
+		 */
 
 		$validKeys = array_map( 'strtolower', array(
 			'mode',
@@ -138,33 +155,37 @@ class PhotoSwipe {
 
 		if ( !$valid ) {
 			return wfMessage( 'photoswipe-invalid-config-keyvalue' )
-				->params( $resource, htmlspecialchars( json_encode( $key ) ), htmlspecialchars( json_encode( $value ) ) )
+				->params(
+					$resource,
+					htmlspecialchars( json_encode( $key ) ),
+					htmlspecialchars( json_encode( $value ) )
+				)
 				->text();
 		}
 		return true;
 	}
 
 	/**
-	* Register the <photoswipe> tag with the Parser.
-	* @link https://mediawiki.org/wiki/Manual:Tag_extensions
-	* @link https://mediawiki.org/wiki/Manual:Hooks/ParserFirstCallInit
-	* @link https://doc.wikimedia.org/mediawiki-core/master/php/interfaceMediaWiki_1_1Hook_1_1ParserFirstCallInitHook.html
-	*
-	* @param Parser &$parser
-	*/
+	 * Register the <photoswipe> tag with the Parser.
+	 * @link https://mediawiki.org/wiki/Manual:Tag_extensions
+	 * @link https://mediawiki.org/wiki/Manual:Hooks/ParserFirstCallInit
+	 * @link https://doc.wikimedia.org/mediawiki-core/master/php/interfaceMediaWiki_1_1Hook_1_1ParserFirstCallInitHook.html
+	 *
+	 * @param Parser &$parser
+	 */
 	public static function onParserFirstCallInit( Parser &$parser ) {
 		$parser->setHook( 'photoswipe', [ self::class, 'renderTagPhotoSwipe' ] );
 	}
 
 	/**
-	* Callback for onParserFirstCallInit
-	*
-	* @param string|null $input User-supplied input (null for self-closing tag)
-	* @param array &$args Tag arguments, if any
-	* @param Parser &$parser
-	* @param PPFrame &$frame
-	* @return string HTML
-	*/
+	 * Callback for onParserFirstCallInit
+	 *
+	 * @param string|null $input User-supplied input (null for self-closing tag)
+	 * @param array &$args Tag arguments, if any
+	 * @param Parser &$parser
+	 * @param PPFrame &$frame
+	 * @return string HTML
+	 */
 	public static function renderTagPhotoSwipe( &$input, array &$args, Parser &$parser, PPFrame &$frame ) {
 		$extension = self::getConfigValue( 'PhotoSwipeConfig' );
 		$errors = array();
@@ -172,7 +193,9 @@ class PhotoSwipe {
 		$jsConfigVars = array( 'wgPhotoSwipeConfig' => array() );
 
 		// Strip single and multi-line comments, strip trailing commas, enable multiline strings
-		if ( $input ) { $input = ( new Comment )->strip( $input ); }
+		if ( $input ) {
+            $input = ( new Comment )->strip( $input );
+        }
 
 		foreach ( array( 'validate', 'parse' ) as $process ) {
 			foreach ( array( 'extension', 'attribute', 'content' ) as $resource ) {
@@ -200,15 +223,22 @@ class PhotoSwipe {
 						$jsonparser = new JsonParser();
 						$jsonerror = $jsonparser->lint( $$configsrc )->getMessage();
 						$jsonerror = trim( str_replace( 'Parse error on line 1:', '', $jsonerror ) );
-						$jsonerror = '<blockquote><code>' . str_replace( "\n", '<br>', $jsonerror ) . '</code></blockquote>';
+						$jsonerror = '<blockquote><code>'
+							. str_replace( "\n", '<br>', $jsonerror )
+							. '</code></blockquote>';
 
-						array_push( $errors, '* ' . wfMessage( 'photoswipe-invalid-config-json' )->params( $resource, $jsonerror )->parse() );
+						array_push(
+							$errors,
+							'* ' . wfMessage( 'photoswipe-invalid-config-json' )
+								->params( $resource, $jsonerror )->parse()
+						);
 					}
 
 					else if ( v::arrayType()->validate( $$configsrc ) && count( $$configsrc ) > 0 ) {
 						if ( v::arrayType()->validate( $$configsrc ) ) {
 							foreach ( $$configsrc as $key => &$value ) {
-								if ( ( $isValid = self::isValidConfig( $resource, strtolower( $key ), $value ) ) !== true ) {
+								$isValid = self::isValidConfig( $resource, strtolower( $key ), $value );
+								if ( $isValid !== true ) {
 									array_push( $errors, '* ' . $isValid );
 								}
 							}
@@ -227,16 +257,25 @@ class PhotoSwipe {
 						);
 						foreach ( $$configsrc as $key => &$value ) {
 							// Force camelCase
-							$ccKeyName = $ccKeyNames[ array_search( strtolower( $key ), array_map( 'strtolower', $ccKeyNames ) ) ];
-							/*
+							$ccKeyName = $ccKeyNames[ array_search(
+								strtolower( $key ),
+								array_map( 'strtolower', $ccKeyNames )
+							) ];
+							/ *
 							$GLOBALS[ 'wgPhotoSwipeConfig' ][ $ccKeyName ] = $value;
-							if ( v::in( array_map( 'strtolower', $ccKeyNames ) )->validate( strtolower( $key ) ) && v::not( v::in( $ccKeyNames ) )->validate( $key ) ) {
+							if (
+								v::in( array_map( 'strtolower', $ccKeyNames ) )
+									->validate( strtolower( $key ) )
+								&& v::not( v::in( $ccKeyNames ) )
+									->validate( $key )
+							) {
 								if ( array_key_exists( $key, $GLOBALS[ 'wgPhotoSwipeConfig' ] ) ) {
 									unset( $GLOBALS[ 'wgPhotoSwipeConfig' ][ $key ] );
 								}
 							}
 							*/
-							// Instead use a nonglobal variable for combining configurations (extension, tag arguments, tag content)
+							// Instead use a nonglobal variable for combining configurations
+							// (extension, tag arguments, tag content)
 							$jsConfigVars[ 'wgPhotoSwipeConfig' ][ $ccKeyName ] = $value;
 						}
 					}
@@ -286,7 +325,10 @@ class PhotoSwipe {
 						}
 					} else if ( v::arrayType()->validate( $v ) ) {
 						// Enable by default if 'enabled' key isn't specified
-						if ( v::anyOf( v::key( 'enabled', v::equals( true ) ), v::not( v::key( 'enabled' ) ) )->validate( $v ) ) {
+						if ( v::anyOf(
+							v::key( 'enabled', v::equals( true ) ),
+							v::not( v::key( 'enabled' ) ) )->validate( $v
+						) ) {
 							if ( strtolower( $k ) === strtolower( 'DeepZoomPlugin' ) ) {
 								$out->addModules( 'js.photoswipe-deep-zoom-plugin' );
 								// dependency, ensure this module is loaded even if misconfigured

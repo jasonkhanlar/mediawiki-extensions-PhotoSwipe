@@ -1,5 +1,22 @@
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 // https://attacomsian.com/blog/javascript-check-variable-is-object
-const isObject = ( obj ) => { return Object.prototype.toString.call( obj ) === '[object Object]'; };
+const isObject = ( obj ) => {
+    return Object.prototype.toString.call( obj ) === '[object Object]';
+};
 
 const isEnabled = ( plugin ) => {
     if ( Array.isArray( config.plugins ) ) {
@@ -33,15 +50,25 @@ if ( config ) {
     let videoplugin;
 
     /*
-    * mode: recommended -> https://photoswipe.com/getting-started/#initialization
-    * mode: withoutdynamicimport -> https://photoswipe.com/getting-started/#without-dynamic-import
-    * mode: withoutlightbox -> https://photoswipe.com/data-sources/#without-lightbox-module
-    */
-    if ( config.mode !== 'withoutlightbox' ) { PhotoSwipeLightbox = require( 'js.photoswipe-lightbox' ); }
-    if ( config.mode === 'withoutdynamicimport' ) { PhotoSwipe = require( 'js.photoswipe' ); }
-    if ( isEnabled( 'DeepZoomPlugin' ) ) { PhotoSwipeDeepZoomPlugin = require( 'js.photoswipe-deep-zoom-plugin' ); }
-    if ( isEnabled( 'DynamicCaption' ) ) { PhotoSwipeDynamicCaption = require( 'js.photoswipe-dynamic-caption-plugin' ); }
-    if ( isEnabled( 'VideoPlugin' ) ) { PhotoSwipeVideoPlugin = require( 'js.photoswipe-video-plugin' ); }
+     * mode: recommended -> https://photoswipe.com/getting-started/#initialization
+     * mode: withoutdynamicimport -> https://photoswipe.com/getting-started/#without-dynamic-import
+     * mode: withoutlightbox -> https://photoswipe.com/data-sources/#without-lightbox-module
+     */
+    if ( config.mode !== 'withoutlightbox' ) {
+        PhotoSwipeLightbox = require( 'js.photoswipe-lightbox' );
+    }
+    if ( config.mode === 'withoutdynamicimport' ) {
+        PhotoSwipe = require( 'js.photoswipe' );
+    }
+    if ( isEnabled( 'DeepZoomPlugin' ) ) {
+        PhotoSwipeDeepZoomPlugin = require( 'js.photoswipe-deep-zoom-plugin' );
+    }
+    if ( isEnabled( 'DynamicCaption' ) ) {
+        PhotoSwipeDynamicCaption = require( 'js.photoswipe-dynamic-caption-plugin' );
+    }
+    if ( isEnabled( 'VideoPlugin' ) ) {
+        PhotoSwipeVideoPlugin = require( 'js.photoswipe-video-plugin' );
+    }
 
     // https://en.wikipedia.org/wiki/Cross-site_scripting
     // https://mediawiki.org/wiki/Requests_for_comment/Content-Security-Policy
@@ -71,28 +98,28 @@ if ( config ) {
     }
 
     /*
-    /* Eventables: For executing lightbox events, filters, methods, and other relevant JS code.
-    *
-    * https://photoswipe.com/events/
-    * https://photoswipe.com/filters/
-    * https://photoswipe.com/methods/
-    *
-    * https://photoswipe.com/opening-or-closing-transition/#transition-duration-and-easing
-    * https://photoswipe.com/opening-or-closing-transition/#hiding-elements-that-overlap-thumbnails
-    * https://photoswipe.com/adding-ui-elements/#adding-a-button-to-the-toolbar
-    * https://photoswipe.com/adding-ui-elements/#adding-html-indicator-to-the-toolbar
-    * https://photoswipe.com/adding-ui-elements/#adding-download-button
-    * https://photoswipe.com/adding-ui-elements/#adding-navigation-indicator-bullets
-    * https://photoswipe.com/adding-ui-elements/#uiregisterelement-api
-    * https://photoswipe.com/caption/
-    * https://photoswipe.com/custom-content/#using-webp-image-format
-    * https://photoswipe.com/custom-content/#google-maps-demo
-    * https://photoswipe.com/data-sources/#custom-last-slide
-    * https://photoswipe.com/data-sources/#dynamically-generated-data
-    * https://photoswipe.com/data-sources/#custom-html-markup
-    * https://photoswipe.com/data-sources/#separate-dom-and-data
-    * https://photoswipe.com/native-fullscreen-on-open/
-    */
+     * Eventables: For executing lightbox events, filters, methods, and other relevant JS code.
+     *
+     * https://photoswipe.com/events/
+     * https://photoswipe.com/filters/
+     * https://photoswipe.com/methods/
+     *
+     * https://photoswipe.com/opening-or-closing-transition/#transition-duration-and-easing
+     * https://photoswipe.com/opening-or-closing-transition/#hiding-elements-that-overlap-thumbnails
+     * https://photoswipe.com/adding-ui-elements/#adding-a-button-to-the-toolbar
+     * https://photoswipe.com/adding-ui-elements/#adding-html-indicator-to-the-toolbar
+     * https://photoswipe.com/adding-ui-elements/#adding-download-button
+     * https://photoswipe.com/adding-ui-elements/#adding-navigation-indicator-bullets
+     * https://photoswipe.com/adding-ui-elements/#uiregisterelement-api
+     * https://photoswipe.com/caption/
+     * https://photoswipe.com/custom-content/#using-webp-image-format
+     * https://photoswipe.com/custom-content/#google-maps-demo
+     * https://photoswipe.com/data-sources/#custom-last-slide
+     * https://photoswipe.com/data-sources/#dynamically-generated-data
+     * https://photoswipe.com/data-sources/#custom-html-markup
+     * https://photoswipe.com/data-sources/#separate-dom-and-data
+     * https://photoswipe.com/native-fullscreen-on-open/
+     */
     if ( config.addEventables ) {
         if ( typeof config.addEventables === 'string' ) {
             jQuery.globalEval( config.addEventables, { nonce: config.nonce } );
