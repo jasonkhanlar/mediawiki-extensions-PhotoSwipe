@@ -194,8 +194,8 @@ class PhotoSwipe {
 
 		// Strip single and multi-line comments, strip trailing commas, enable multiline strings
 		if ( $input ) {
-            $input = ( new Comment )->strip( $input );
-        }
+			$input = ( new Comment )->strip( $input );
+		}
 
 		foreach ( array( 'validate', 'parse' ) as $process ) {
 			foreach ( array( 'extension', 'attribute', 'content' ) as $resource ) {
