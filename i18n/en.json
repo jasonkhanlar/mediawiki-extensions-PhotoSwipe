@@ -4,7 +4,7 @@
 			"Jason Khanlar"
 		]
 	},
-	"photoswipe-desc": "[https://photoswipe.com/ PhotoSwipe]",
+	"photoswipe-desc": "Adds <code>&lt;photoswipe&gt;</code> tag to provide a front-end JavaScript image gallery and lightbox using [https://photoswipe.com/ PhotoSwipe]",
 	"photoswipe-invalid-config-all": "$1",
 	"photoswipe-invalid-config-json": "$1 config is not valid JSON.\n$2",
 	"photoswipe-invalid-config-key": "$1 config: key name $2 is invalid.",

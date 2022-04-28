@@ -1,5 +1,5 @@
 # mediawiki-extensions-PhotoSwipe
-This is a MediaWiki extension that provides a front-end JavaScript image gallery and lightbox using PhotoSwipe
+This is a MediaWiki extension that adds <code>&lt;photoswipe&gt;</code> tag to provide a front-end JavaScript image gallery and lightbox using [PhotoSwipe](https://photoswipe.com/)
 
 ## Installation
 
