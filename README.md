@@ -1,4 +1,8 @@
+# [PhotoSwipe](https://mediawiki.org/wiki/Extension:PhotoSwipe) repository migrated to [Wikimedia Gerrit](https://gerrit.wikimedia.org/r/plugins/gitiles/mediawiki/extensions/PhotoSwipe/#mediawiki_extensions_photoswipe)
+
 The primary repository is now migrated to [Wikimedia Gerrit](https://gerrit.wikimedia.org/r/plugins/gitiles/mediawiki/extensions/PhotoSwipe/#mediawiki_extensions_photoswipe). See https://gerrit.wikimedia.org/r/plugins/gitiles/mediawiki/extensions/PhotoSwipe/#mediawiki_extensions_photoswipe for latest updates.
+
+Also see https://mediawiki.org/wiki/Extension:PhotoSwipe
 
 # mediawiki-extensions-PhotoSwipe
 This is a MediaWiki extension that adds <code>&lt;photoswipe&gt;</code> tag to provide a front-end JavaScript image gallery and lightbox using [PhotoSwipe](https://photoswipe.com/)
