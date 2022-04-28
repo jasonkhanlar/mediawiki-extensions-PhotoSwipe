@@ -10,7 +10,7 @@
 	"requires": {
 		"MediaWiki": ">= 1.37.1"
 	},
-	"type": "global",
+	"type": "parserhook",
 	"url": "https://mediawiki.org/wiki/Extension:PhotoSwipe",
 	"AutoloadClasses": {
 		"PhotoSwipe": "includes/PhotoSwipe.php"
